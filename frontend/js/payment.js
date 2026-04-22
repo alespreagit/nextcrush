@@ -134,7 +134,7 @@ async function submitPayment(){
 async function loadPaidReading(paymentIntentId){
   // Allow null for gift code redemptions
   try {
-    showStep('step-paid');
+    ncShowStep('step-paid');
 
     // Show loading state
     document.getElementById('oracle-text').innerHTML = `
