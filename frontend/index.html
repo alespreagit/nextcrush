@@ -280,14 +280,15 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-// Available immediately before deferred scripts load
 function togglePayButton(){
-  const checkbox = document.getElementById('agree-checkbox');
-  const btn = document.getElementById('btn-pay');
-  if(checkbox && btn){
-    btn.disabled = !checkbox.checked;
-    btn.style.opacity = checkbox.checked ? '1' : '0.5';
-  }
+  try {
+    const cb = document.getElementById('agree-checkbox');
+    const btn = document.getElementById('btn-pay');
+    if(!cb || !btn) return;
+    btn.disabled = !cb.checked;
+    btn.style.opacity = cb.checked ? '1' : '0.5';
+    btn.style.cursor = cb.checked ? 'pointer' : 'not-allowed';
+  } catch(e){ console.error(e); }
 }
 </script>
 <script src="/js/geocode.js" defer></script>

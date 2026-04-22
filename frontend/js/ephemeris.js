@@ -138,11 +138,13 @@ function calcFuzzyWindow(dob, tob, gender, seeking){
 
   // Deterministic fuzz — same birth data always gives same result
   // Seed based on birth date so it never changes for same person
+  // Cap at 90 days for free tier — keeps it feeling imminent
+  const cappedDay = Math.min(bestDay, 90);
   const seekSeed = seeking==='partner' ? 3 : seeking==='crush' ? 7 : 11;
   const seed = (year * 31 + month * 7 + day * 13 + seekSeed) % 14;
   const fuzz = seed + 8;
-  const low = Math.max(7, bestDay - fuzz);
-  const high = bestDay + fuzz;
+  const low = Math.max(7, cappedDay - fuzz);
+  const high = cappedDay + fuzz;
 
   const tierLabels={
     1:'A significant partner energy is forming',

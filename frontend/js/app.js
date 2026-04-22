@@ -422,16 +422,7 @@ window.startCalculation = function(){
   _origStart();
 };
 
-// ── LEGAL ──
-function togglePayButton(){
-  const checkbox = document.getElementById('agree-checkbox');
-  const btn = document.getElementById('btn-pay');
-  if(checkbox && btn){
-    btn.disabled = !checkbox.checked;
-    btn.style.opacity = checkbox.checked ? '1' : '0.5';
-  }
-}
-window.togglePayButton = togglePayButton;
+// togglePayButton defined inline in HTML
 
 // ── SHARE ──
 function buildShareText(){
