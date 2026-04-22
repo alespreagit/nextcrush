@@ -321,17 +321,17 @@ function showStep(id){
 }
 
 function showPayment(){
+  console.log('showPayment called');
   showStep('step-payment');
-  // Try immediately, retry if Payment not loaded yet
-  if(window.Payment && window.Payment.setupPaymentElement){
-    window.Payment.setupPaymentElement(window.selectedProduct || 'single');
-  } else {
-    setTimeout(function(){
-      if(window.Payment && window.Payment.setupPaymentElement){
-        window.Payment.setupPaymentElement(window.selectedProduct || 'single');
-      }
-    }, 500);
-  }
+  var debugBox = document.getElementById('debug-box');
+  if(debugBox){ debugBox.style.display='block'; debugBox.innerHTML += '<br>showPayment called. Payment=' + (window.Payment ? 'loaded' : 'NOT loaded'); }
+  setTimeout(function(){
+    if(window.Payment && window.Payment.setupPaymentElement){
+      window.Payment.setupPaymentElement(window.selectedProduct || 'single');
+    } else {
+      if(debugBox) debugBox.innerHTML += '<br>Payment object not available';
+    }
+  }, 800);
 }
 
 function showFreeResult(){
