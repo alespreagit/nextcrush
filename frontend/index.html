@@ -157,12 +157,40 @@
     <button class="btn btn-ghost" onclick="resetForm()">← Start Over</button>
   </div>
 
-  <!-- STEP 3: PAYMENT -->
+   <!-- STEP 3: PAYMENT -->
   <div id="step-payment" class="step">
     <div class="card payment-card">
       <div class="card-title">✦ Unlock Your Full Reading ✦</div>
 
-      <div class="payment-features">
+      <!-- PRODUCT SELECTION -->
+      <div class="product-options">
+        <div class="product-option active" id="opt-single" onclick="selectProduct('single')">
+          <div class="product-option-header">
+            <div class="product-name">✦ Single Reading</div>
+            <div class="product-price">$4.99</div>
+          </div>
+          <div class="product-desc">Your full personalised reading — precise countdown, all 5 windows, oracle reading, calendar export</div>
+        </div>
+        <div class="product-option" id="opt-pack" onclick="selectProduct('pack')">
+          <div class="product-option-header">
+            <div class="product-name">✦ Reading Pack</div>
+            <div class="product-price">$9.99 <span class="product-badge">BEST VALUE</span></div>
+          </div>
+          <div class="product-desc">Everything in Single + 2 gift codes to share with friends. Each code unlocks a free full reading.</div>
+        </div>
+      </div>
+
+      <!-- GIFT CODE REDEMPTION -->
+      <div class="gift-code-section">
+        <div class="gift-code-label">✦ Have a gift code?</div>
+        <div class="gift-code-row">
+          <input type="text" id="gift-code-input" placeholder="GIFT-XXXXX" style="text-transform:uppercase;letter-spacing:0.1em;text-align:center"/>
+          <button class="gift-code-btn" onclick="redeemGiftCode()">Apply</button>
+        </div>
+        <div id="gift-code-status" class="gift-code-status"></div>
+      </div>
+
+      <div class="payment-features" id="payment-features">
         <div class="feature-item">⏱ Precise countdown to the minute</div>
         <div class="feature-item">🪐 All 5 love windows with exact transit data</div>
         <div class="feature-item">🔮 Full AI oracle reading — personalised prose</div>
@@ -171,39 +199,25 @@
         <div class="feature-item">🌟 Natal planetary positions via Swiss Ephemeris</div>
       </div>
 
-      <div class="price-tag">$4.99 <span class="price-sub">one-time · yours forever</span></div>
+      <div class="price-tag" id="price-display">$4.99 <span class="price-sub">one-time · yours forever</span></div>
 
-    <!-- DISCLAIMER -->
-<div class="disclaimer-box">
-  <div class="disclaimer-title">✦ Before You Purchase ✦</div>
-  <p>Next Crush uses real Swiss Ephemeris planetary data and authentic Bazi methodology. This is an entertainment and self-reflection tool — not a guarantee of romantic outcomes.</p>
-</div>
-
-<!-- NO REFUND CHECKBOX -->
-<div class="no-refund-box">
-  <label class="checkbox-label">
-    <input type="checkbox" id="agree-checkbox" onchange="activatePayBtn(this.checked)"/>
-    <span>I understand that Next Crush is an astrological timing tool for entertainment and self-reflection purposes only. It is not a guarantee of romantic outcomes. I agree that due to the instant digital delivery of my personalised reading, <strong>all sales are final and non-refundable</strong>.</span>
-  </label>
-</div>
-
-
-
-      <div id="agree-hint" style="text-align:center;font-family:Cinzel,serif;font-size:9px;letter-spacing:0.25em;color:rgba(196,96,127,0.7);text-transform:uppercase;padding:8px 0;margin-bottom:8px">
-        ✦ Please agree above to activate payment
+      <!-- DISCLAIMER -->
+      <div class="disclaimer-box">
+        <div class="disclaimer-title">✦ Before You Purchase ✦</div>
+        <p>Next Crush uses real Swiss Ephemeris planetary data and authentic Bazi methodology. This is an entertainment and self-reflection tool — not a guarantee of romantic outcomes.</p>
       </div>
-      <!-- STRIPE -->
-      <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:12px 0;min-height:20px;text-align:center"></div>
-      <div id="payment-element"></div>
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAADBORMa7rqudzZrP" data-callback="onTurnstileSuccess" data-theme="dark" style="margin:16px 0"></div>
-      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5;margin-top:16px" data-disabled-msg="Please agree to the terms above first">
-        ✦ Unlock Now — $4.99 ✦
-      </button>
 
-      <div class="payment-note">🔒 Secured by Stripe · No subscription · Instant unlock · All sales final</div>
-      <div class="btn-ghost" onclick="showFreeResult()">← Back</div>
-    </div>
-  </div>
+      <!-- NO REFUND CHECKBOX -->
+      <div class="no-refund-box">
+        <label class="checkbox-label">
+          <input type="checkbox" id="agree-checkbox" onchange="activatePayBtn(this.checked)"/>
+          <span>I understand that Next Crush is an astrological timing tool for entertainment and self-reflection purposes only. It is not a guarantee of romantic outcomes. I agree that due to the instant digital delivery of my personalised reading, <strong>all sales are final and non-refundable</strong>.</span>
+        </label>
+      </div>
+
+      <!-- STRIPE -->
+      <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.​​​​​​​​​​​​​​​​
+
 
   <!-- STEP 4: PAID RESULT -->
   <div id="step-paid" class="step">

@@ -16,27 +16,26 @@ function respond(code, body){
 }
 
 exports.handler = async (event) => {
-  // Lambda Function URL sends path differently
   const method = event.requestContext?.http?.method || event.httpMethod || 'GET';
   const path = event.requestContext?.http?.path || event.path || event.rawPath || '/';
 
   console.log('Method:', method, 'Path:', path);
-  console.log('Event keys:', Object.keys(event));
 
   if(method === 'OPTIONS') return { statusCode:200, headers:CORS, body:'' };
 
   try {
     const body = event.body ? JSON.parse(event.body) : {};
 
-    if(path.endsWith('/health')) return respond(200, { status:'ok', path, method });
+    if(path.endsWith('/health')) return respond(200, { status:'ok' });
     if(path.endsWith('/payment/create') && method === 'POST') return respond(200, await payment.createIntent(body));
+    if(path.endsWith('/payment/validate-code') && method === 'POST') return respond(200, await payment.validateCode(body));
     if(path.endsWith('/reading/create') && method === 'POST') return respond(200, await chart.createReading(body));
     if(path.endsWith('/oracle/window') && method === 'POST') return respond(200, await oracle.windowReading(body));
     if(path.endsWith('/user/register') && method === 'POST') return respond(200, await user.register(body));
 
     return respond(404, { error:'Not found', path, method });
   } catch(e){
-    console.error(e);
-    return respond(500, { error:'Server error', message:e.message });
+    console.error('Handler error:', e);
+    return respond(500, { error:'Server error', message: e.message });
   }
 };

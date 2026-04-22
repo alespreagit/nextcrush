@@ -5,7 +5,8 @@
 
 const axios = require('axios');
 const oracle = require('./oracle');
-const { saveReading } = require('./db');
+const payment = require('./payment');
+const { saveReading, createGiftCodes, createReferralCode, validateGiftCode, redeemGiftCode } = require('./db');
 
 const ASTRO_API = 'https://api.freeastroapi.com/api/v1';
 const ASTRO_KEY = process.env.FREEASTRO_API_KEY;
@@ -181,10 +182,8 @@ function parseWindows(transitData, natalData, seeking){
     });
   }
 
-  // Sort by date
   windows.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-  // Apply seeking bonus
   return windows.map(w => {
     let score = w.intensity;
     if(seeking === 'partner' && w.tier === 1) score += 10;
@@ -214,32 +213,61 @@ function capitalize(s){
 }
 
 async function createReading(body){
-  const { paymentIntentId, birthData, email } = body;
+  const { paymentIntentId, birthData, email, giftCode, product } = body;
 
-  if(!paymentIntentId) throw new Error('Payment not verified');
-  if(!birthData) throw new Error('Birth data required');
+  // Verify payment OR gift code
+  if(giftCode){
+    const valid = await validateGiftCode(giftCode);
+    if(!valid) throw new Error('Invalid or already used gift code');
+    await redeemGiftCode(giftCode, email);
+  } else {
+    if(!paymentIntentId) throw new Error('Payment not verified');
+    const paid = await payment.verifyPayment(paymentIntentId);
+    if(!paid) throw new Error('Payment not completed');
+  }
 
-  console.log('Creating reading for:', email);
+  console.log('Creating reading for:', email, 'product:', product);
 
-  // Call all three APIs in parallel
   const [natalData, baziData] = await Promise.all([
     getNatalChart(birthData),
     getBaziChart(birthData)
   ]);
 
   const transitData = await getTransits(birthData, natalData);
-
   const planets = parsePlanets(natalData);
   const bazi = parseBazi(baziData);
   const luckPillar = parseLuckPillar(baziData);
   const windows = parseWindows(transitData, natalData, birthData.seeking);
 
-  // Get Claude oracle reading
   const oracleText = await oracle.mainReading({
     planets, bazi, luckPillar, windows,
     seeking: birthData.seeking,
     city: birthData.city
   });
+
+  // Generate gift codes if pack purchase
+  let giftCodes = [];
+  if(product === 'pack' && paymentIntentId){
+    try {
+      giftCodes = await createGiftCodes({
+        email,
+        paymentIntentId,
+        count: 2
+      });
+    } catch(e){
+      console.error('Gift code generation failed:', e.message);
+    }
+  }
+
+  // Generate referral code for this user
+  let refCode = null;
+  if(email){
+    try {
+      refCode = await createReferralCode(email);
+    } catch(e){
+      console.error('Referral code generation failed:', e.message);
+    }
+  }
 
   const result = {
     planets,
@@ -247,15 +275,21 @@ async function createReading(body){
     luckPillar,
     windows,
     oracle: oracleText,
+    giftCodes,
+    refCode,
+    product: product || 'single',
     createdAt: new Date().toISOString()
   };
 
-  // Save to Supabase
   try {
-    await saveReading({ email, paymentIntentId, birthData, result });
+    await saveReading({
+      email,
+      paymentIntentId: paymentIntentId || giftCode,
+      birthData,
+      result
+    });
   } catch(e){
     console.error('DB save failed:', e.message);
-    // Don't fail the reading if DB save fails
   }
 
   return result;

@@ -20,11 +20,12 @@ async function createPaymentIntent(){
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
-      amount: 499,
+      amount: window.selectedProduct === 'pack' ? 999 : 499,
       currency: 'usd',
       email: window.AppState?.email || '',
       birthData: window.AppState?.birthData || {},
-      turnstileToken: window.turnstileToken || null
+      turnstileToken: window.turnstileToken || null,
+      product: window.selectedProduct || 'single'
     })
   });
   const data = await res.json();
@@ -79,16 +80,17 @@ async function setupPaymentElement(){
 }
 
 async function submitPayment(){
-  // Double check agreement even if button was bypassed
+  // Handle gift code flow
+  if(window.AppState.giftCode){
+    const checkbox = document.getElementById('agree-checkbox');
+    if(!checkbox || !checkbox.checked){ showToast('Please agree to the terms first'); return; }
+    await loadPaidReading(null);
+    return;
+  }
+  // Double check agreement
   const checkbox = document.getElementById('agree-checkbox');
-  if(!checkbox || !checkbox.checked){
-    showToast('Please agree to the terms first');
-    return;
-  }
-  if(!stripe||!elements){
-    showToast('Payment not ready yet');
-    return;
-  }
+  if(!checkbox || !checkbox.checked){ showToast('Please agree to the terms first'); return; }
+  if(!stripe||!elements){ showToast('Payment not ready yet'); return; }
 
   const btn = document.getElementById('btn-pay');
   btn.disabled = true;
@@ -125,6 +127,7 @@ async function submitPayment(){
 }
 
 async function loadPaidReading(paymentIntentId){
+  // Allow null for gift code redemptions
   try {
     showStep('step-paid');
 
@@ -141,7 +144,9 @@ async function loadPaidReading(paymentIntentId){
       body: JSON.stringify({
         paymentIntentId,
         birthData: window.AppState.birthData,
-        email: window.AppState.email || ''
+        email: window.AppState.email || '',
+        giftCode: window.AppState.giftCode || null,
+        product: window.selectedProduct || 'single'
       })
     });
 

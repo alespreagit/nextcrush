@@ -227,3 +227,25 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .email-gate::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .email-gate-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
 .email-gate-desc{font-size:15px;line-height:1.7;color:var(--text-dim);font-style:italic;margin-bottom:24px}
+
+/* PRODUCT OPTIONS */
+.product-options{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.product-option{border:1px solid rgba(201,168,76,.2);padding:18px 20px;cursor:pointer;transition:all .3s;background:rgba(255,255,255,.02)}
+.product-option:hover{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04)}
+.product-option.active{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.product-option-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.product-name{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.product-price{font-family:'Cinzel',serif;font-size:16px;color:var(--gold-light);display:flex;align-items:center;gap:8px}
+.product-badge{font-size:8px;letter-spacing:.2em;background:rgba(196,96,127,.2);border:1px solid rgba(196,96,127,.4);color:var(--rose-light);padding:3px 8px}
+.product-desc{font-size:13px;line-height:1.6;color:var(--text-dim)}
+
+/* GIFT CODE */
+.gift-code-section{margin-bottom:24px;padding:16px 20px;border:1px solid rgba(201,168,76,.12);background:rgba(255,255,255,.01)}
+.gift-code-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.3em;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px}
+.gift-code-row{display:flex;gap:8px}
+.gift-code-row input{flex:1;text-align:center}
+.gift-code-btn{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;padding:0 16px;cursor:pointer;text-transform:uppercase;white-space:nowrap;transition:all .3s}
+.gift-code-btn:hover{background:rgba(201,168,76,.2);border-color:var(--gold)}
+.gift-code-status{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:8px 0;min-height:20px}
+.gift-code-status.valid{color:#88d4a0}
+.gift-code-status.invalid{color:var(--rose-light)}

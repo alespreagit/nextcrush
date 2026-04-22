@@ -179,6 +179,12 @@ function renderPaidResult(data){
 
   // Venus profile
   renderVenusInfo(planets||{}, bazi||{});
+
+  // Gift codes + referral
+  renderGiftAndReferral(data);
+
+  // Update share preview
+  if(window.updateSharePreview) updateSharePreview();
 }
 
 // ── COUNTDOWN ──
@@ -595,3 +601,110 @@ function onTurnstileSuccess(token){
   window.turnstileToken = token;
 }
 window.onTurnstileSuccess = onTurnstileSuccess;
+
+// ── PRODUCT SELECTION ──
+window.selectedProduct = 'single';
+
+function selectProduct(product){
+  window.selectedProduct = product;
+  document.getElementById('opt-single').classList.toggle('active', product === 'single');
+  document.getElementById('opt-pack').classList.toggle('active', product === 'pack');
+  const price = product === 'pack' ? '$9.99' : '$4.99';
+  const label = product === 'pack' ? 'Reading Pack — $9.99' : 'Single Reading — $4.99';
+  document.getElementById('price-display').innerHTML = price + ' <span class="price-sub">one-time · yours forever</span>';
+  document.getElementById('btn-pay').textContent = '✦ Unlock Now — ' + price + ' ✦';
+  // Re-init payment element with new amount
+  if(window.Payment) Payment.setupPaymentElement(product);
+}
+
+window.selectProduct = selectProduct;
+
+// ── GIFT CODE REDEMPTION ──
+async function redeemGiftCode(){
+  const code = document.getElementById('gift-code-input')?.value?.trim().toUpperCase();
+  const statusEl = document.getElementById('gift-code-status');
+  if(!code){ statusEl.textContent = 'Please enter a code'; statusEl.className = 'gift-code-status invalid'; return; }
+
+  statusEl.textContent = 'Checking...'; statusEl.className = 'gift-code-status';
+
+  try {
+    const res = await fetch(API_BASE + '/payment/validate-code', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ code, email: window.AppState.email || '' })
+    });
+    const data = await res.json();
+    if(data.valid){
+      statusEl.textContent = '✓ Valid gift code — your reading is free!';
+      statusEl.className = 'gift-code-status valid';
+      window.AppState.giftCode = code;
+      // Hide payment element, show free unlock button
+      document.getElementById('payment-element').style.display = 'none';
+      document.querySelector('.cf-turnstile').style.display = 'none';
+      document.getElementById('btn-pay').textContent = '✦ Unlock Free Reading ✦';
+      document.getElementById('btn-pay').disabled = false;
+      document.getElementById('btn-pay').style.opacity = '1';
+      document.getElementById('agree-hint').style.display = 'none';
+      document.getElementById('price-display').innerHTML = '<span style="color:#88d4a0">FREE</span> <span class="price-sub">gift code applied</span>';
+    } else {
+      statusEl.textContent = data.error || 'Invalid or already used code';
+      statusEl.className = 'gift-code-status invalid';
+      window.AppState.giftCode = null;
+    }
+  } catch(e){
+    statusEl.textContent = 'Could not verify code. Try again.';
+    statusEl.className = 'gift-code-status invalid';
+  }
+}
+
+window.redeemGiftCode = redeemGiftCode;
+
+// ── RENDER GIFT CODES + REFERRAL ──
+function renderGiftAndReferral(result){
+  const { giftCodes, refCode } = result;
+
+  // Show gift codes if pack purchase
+  if(giftCodes && giftCodes.length > 0){
+    const existing = document.getElementById('gift-codes-section');
+    if(existing) existing.remove();
+
+    const section = document.createElement('div');
+    section.id = 'gift-codes-section';
+    section.style.cssText = 'background:linear-gradient(135deg,rgba(26,15,46,.7),rgba(8,6,22,.8));border:1px solid rgba(201,168,76,.18);padding:28px 32px;margin-bottom:24px;position:relative;text-align:center';
+    section.innerHTML = '<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:16px">✦ Your Gift Codes ✦</div>' +
+      '<div style="font-size:14px;color:var(--text-dim);font-style:italic;margin-bottom:20px;line-height:1.7">Share these codes with friends — each unlocks a free full reading at nextcrush.app</div>' +
+      giftCodes.map(code => '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold-light);letter-spacing:.15em;padding:12px;border:1px solid rgba(201,168,76,.3);margin-bottom:8px;cursor:pointer" onclick="copyCode(this,''+code+'')">' + code + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>').join('') +
+      '<div style="font-size:12px;color:var(--text-dim);font-style:italic;margin-top:8px">Codes never expire</div>';
+
+    const shareCard = document.querySelector('.share-card');
+    if(shareCard) shareCard.parentNode.insertBefore(section, shareCard);
+  }
+
+  // Show referral code
+  if(refCode){
+    const existing = document.getElementById('referral-section');
+    if(existing) existing.remove();
+
+    const section = document.createElement('div');
+    section.id = 'referral-section';
+    section.style.cssText = 'background:rgba(8,6,22,.7);border:1px solid rgba(201,168,76,.12);padding:24px 28px;margin-bottom:24px;text-align:center';
+    section.innerHTML = '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;opacity:.7">✦ Your Referral Link ✦</div>' +
+      '<div style="font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:16px;line-height:1.6">When a friend signs up using your link and pays, you get a free reading credit automatically.</div>' +
+      '<div style="font-family:Cinzel,serif;font-size:13px;color:var(--gold-light);letter-spacing:.1em;padding:10px;border:1px solid rgba(201,168,76,.2);cursor:pointer;margin-bottom:8px" onclick="copyRefLink(''+refCode+'')">nextcrush.app?ref=' + refCode + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>';
+
+    const shareCard = document.querySelector('.share-card');
+    if(shareCard) shareCard.parentNode.insertBefore(section, shareCard);
+  }
+}
+
+function copyCode(el, code){
+  navigator.clipboard.writeText(code).then(() => showToast('Code copied: ' + code));
+}
+
+function copyRefLink(refCode){
+  const url = 'https://nextcrush.app?ref=' + refCode;
+  navigator.clipboard.writeText(url).then(() => showToast('Referral link copied!'));
+}
+
+window.copyCode = copyCode;
+window.copyRefLink = copyRefLink;
