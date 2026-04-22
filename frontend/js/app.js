@@ -387,29 +387,18 @@ function renderVenusInfo(planets, bazi){
 }
 
 // ── GLOBAL HELPERS (called from HTML) ──
-
-
 window.startCalculation = startCalculation;
 window.resetForm = resetForm;
 window.showFreeResult = showFreeResult;
-window.showPayment = Payment.showPayment;
-window.saveEmail = Payment.saveEmail;
-window.submitPayment = Payment.submitPayment;
 window.revealWindowReading = revealWindowReading;
-window.downloadICS = Calendar.downloadICS;
-window.addToGoogleCalendar = Calendar.addToGoogleCalendar;
 window.showToast = showToast;
 window.streamOracleText = streamOracleText;
 
-// ── SAFE INIT (runs after all scripts load) ──
+
+
+// ── INIT ON LOAD ──
 document.addEventListener('DOMContentLoaded', function(){
-  // Re-bind in case of load order issues
-  window.startCalculation = startCalculation;
-  window.resetForm = resetForm;
-  window.showFreeResult = showFreeResult;
-  window.showToast = showToast;
-  window.streamOracleText = streamOracleText;
-  window.revealWindowReading = revealWindowReading;
+  if(window.Geocode) window.Geocode.initCityAutocomplete();
   if(window.Payment){
     window.showPayment = Payment.showPayment;
     window.saveEmail = Payment.saveEmail;
@@ -421,43 +410,13 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 });
 
-// ── INIT GEOCODE ON LOAD ──
-document.addEventListener('DOMContentLoaded', function(){
-  if(window.Geocode) window.Geocode.initCityAutocomplete();
-});
-
-// ── OVERRIDE startCalculation to include coords ──
-const _origCalc = window.startCalculation;
+// ── WRAP startCalculation to include coords ──
+const _origStart = window.startCalculation;
 window.startCalculation = function(){
   const cityData = window.Geocode ? window.Geocode.getCityData() : null;
-  if(cityData){
-    window.AppState.cityData = cityData;
-    if(cityData.lat) document.getElementById('city-lat').value = cityData.lat;
-    if(cityData.lng) document.getElementById('city-lng').value = cityData.lng;
+  if(cityData && cityData.lat){
+    document.getElementById('city-lat').value = cityData.lat;
+    document.getElementById('city-lng').value = cityData.lng;
   }
-  // Update birthData with coords
-  const dobVal = document.getElementById('dob').value;
-  if(!dobVal){ showToast('Please enter your date of birth'); return; }
-  const tobVal = document.getElementById('tob').value;
-  const gender = document.getElementById('gender').value;
-  const seeking = document.getElementById('seeking').value;
-  if(!gender){ showToast('Please select your gender'); return; }
-  if(!seeking){ showToast('Please select what you are seeking'); return; }
-  const dob = new Date(dobVal+'T12:00:00');
-  window.AppState.birthData = {
-    dob:dobVal, tob:tobVal, gender, seeking,
-    city: cityData?.display || document.getElementById('city').value,
-    lat: cityData?.lat || null,
-    lng: cityData?.lng || null,
-    country: cityData?.country || '',
-    year:dob.getFullYear(),
-    month:dob.getMonth()+1,
-    day:dob.getDate(),
-    hour:tobVal?parseInt(tobVal.split(':')[0]):12,
-    minute:tobVal?parseInt(tobVal.split(':')[1]):0
-  };
-  const result = window.Ephemeris.calcFuzzyWindow(dob,tobVal,gender,seeking);
-  window.AppState.freeResult = result;
-  renderFreeResult(result);
-  showStep('step-free');
+  _origStart();
 };
