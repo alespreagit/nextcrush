@@ -154,8 +154,8 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 
 /* NO REFUND */
 .no-refund-box{background:rgba(139,58,90,.08);border:1px solid rgba(196,96,127,.2);padding:16px 20px;margin-bottom:20px}
-.checkbox-label{display:flex;gap:12px;align-items:flex-start;cursor:pointer;font-size:13px;line-height:1.7;color:var(--text)}
-.checkbox-label input[type="checkbox"]{width:18px;height:18px;min-width:18px;margin-top:2px;cursor:pointer;accent-color:var(--gold)}
+.checkbox-label{display:flex;gap:12px;align-items:flex-start;cursor:pointer;font-size:11px;line-height:1.6;color:var(--text);font-family:'Cormorant Garamond',serif;text-transform:none;letter-spacing:0}
+.checkbox-label input[type="checkbox"]{width:20px;height:20px;min-width:20px;margin-top:2px;cursor:pointer;accent-color:var(--gold);flex-shrink:0}
 .checkbox-label strong{color:var(--rose-light)}
 
 /* PLANET TABLE */
