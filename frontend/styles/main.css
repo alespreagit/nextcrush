@@ -153,9 +153,9 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .disclaimer-box p:last-child{margin-bottom:0}
 
 /* NO REFUND */
-.no-refund-box{background:rgba(139,58,90,.08);border:1px solid rgba(196,96,127,.2);padding:16px 20px;margin-bottom:20px}
-.checkbox-label{display:flex;gap:12px;align-items:flex-start;cursor:pointer;font-size:11px;line-height:1.6;color:var(--text);font-family:'Cormorant Garamond',serif;text-transform:none;letter-spacing:0}
-.checkbox-label input[type="checkbox"]{width:20px;height:20px;min-width:20px;margin-top:2px;cursor:pointer;accent-color:var(--gold);flex-shrink:0}
+.no-refund-box{background:rgba(139,58,90,.08);border:1px solid rgba(196,96,127,.2);padding:20px;margin-bottom:20px;-webkit-tap-highlight-color:rgba(201,168,76,.2)}
+.checkbox-label{display:flex;gap:16px;align-items:flex-start;cursor:pointer;font-size:13px;line-height:1.7;color:var(--text);font-family:'Cormorant Garamond',serif;text-transform:none;letter-spacing:0;-webkit-tap-highlight-color:rgba(201,168,76,.2);touch-action:manipulation}
+.checkbox-label input[type="checkbox"]{width:28px;height:28px;min-width:28px;min-height:28px;margin-top:0;cursor:pointer;accent-color:var(--gold);flex-shrink:0;-webkit-appearance:checkbox;appearance:checkbox;opacity:1;position:relative;z-index:10;touch-action:manipulation}
 .checkbox-label strong{color:var(--rose-light)}
 
 /* PLANET TABLE */
