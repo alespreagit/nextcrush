@@ -181,7 +181,7 @@
 <!-- NO REFUND CHECKBOX -->
 <div class="no-refund-box">
   <label class="checkbox-label">
-    <input type="checkbox" id="agree-checkbox" onchange="this.nextElementSibling.style.color=this.checked?'#88d4a0':'inherit'; var btn=document.getElementById('btn-pay'); if(btn){btn.disabled=!this.checked; btn.style.opacity=this.checked?'1':'0.5';}"/>
+    <input type="checkbox" id="agree-checkbox" onchange="activatePayBtn(this.checked)"/>
     <span>I understand that Next Crush is an astrological timing tool for entertainment and self-reflection purposes only. It is not a guarantee of romantic outcomes. I agree that due to the instant digital delivery of my personalised reading, <strong>all sales are final and non-refundable</strong>.</span>
   </label>
 </div>
@@ -189,11 +189,9 @@
 
 
       <!-- STRIPE -->
-       <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:12px 0;min-height:20px;text-align:center"></div>
-<div id="payment-element"></div>
-
+      <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:12px 0;min-height:20px;text-align:center"></div>
       <div id="payment-element"></div>
-      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5">
+      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5;margin-top:16px">
         ✦ Unlock Now — $4.99 ✦
       </button>
 
@@ -281,14 +279,14 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 function togglePayButton(){
-  try {
-    const cb = document.getElementById('agree-checkbox');
-    const btn = document.getElementById('btn-pay');
-    if(!cb || !btn) return;
-    btn.disabled = !cb.checked;
-    btn.style.opacity = cb.checked ? '1' : '0.5';
-    btn.style.cursor = cb.checked ? 'pointer' : 'not-allowed';
-  } catch(e){ console.error(e); }
+  activatePayBtn(document.getElementById('agree-checkbox').checked);
+}
+function activatePayBtn(checked){
+  var btn = document.getElementById('btn-pay');
+  if(!btn) return;
+  btn.disabled = !checked;
+  btn.style.opacity = checked ? '1' : '0.5';
+  btn.style.cursor = checked ? 'pointer' : 'not-allowed';
 }
 </script>
 <script src="/js/geocode.js" defer></script>
