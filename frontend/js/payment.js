@@ -201,4 +201,4 @@ function showPayment(){
   setupPaymentElement();
 }
 
-window.Payment = {initStripe, submitPayment, saveEmail, showPayment, loadPaidReading};
+window.Payment = {initStripe, submitPayment, saveEmail, showPayment, loadPaidReading, setupPaymentElement};
