@@ -386,7 +386,7 @@ function renderVenusInfo(planets, bazi){
 }
 
 // ── GLOBAL HELPERS (called from HTML) ──
-const API_BASE = 'https://api.nextcrush.app';
+
 
 window.startCalculation = startCalculation;
 window.resetForm = resetForm;
@@ -399,3 +399,23 @@ window.downloadICS = Calendar.downloadICS;
 window.addToGoogleCalendar = Calendar.addToGoogleCalendar;
 window.showToast = showToast;
 window.streamOracleText = streamOracleText;
+
+// ── SAFE INIT (runs after all scripts load) ──
+document.addEventListener('DOMContentLoaded', function(){
+  // Re-bind in case of load order issues
+  window.startCalculation = startCalculation;
+  window.resetForm = resetForm;
+  window.showFreeResult = showFreeResult;
+  window.showToast = showToast;
+  window.streamOracleText = streamOracleText;
+  window.revealWindowReading = revealWindowReading;
+  if(window.Payment){
+    window.showPayment = Payment.showPayment;
+    window.saveEmail = Payment.saveEmail;
+    window.submitPayment = Payment.submitPayment;
+  }
+  if(window.Calendar){
+    window.downloadICS = Calendar.downloadICS;
+    window.addToGoogleCalendar = Calendar.addToGoogleCalendar;
+  }
+});
