@@ -309,6 +309,11 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
+// Global constants available immediately
+var API_BASE = "https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws";
+var selectedProduct = "single";
+</script>
+<script>
 function togglePayButton(){
   activatePayBtn(document.getElementById('agree-checkbox').checked);
 }
