@@ -189,11 +189,14 @@
 
 
 
+      <div id="agree-hint" style="text-align:center;font-family:Cinzel,serif;font-size:9px;letter-spacing:0.25em;color:rgba(196,96,127,0.7);text-transform:uppercase;padding:8px 0;margin-bottom:8px">
+        ✦ Please agree above to activate payment
+      </div>
       <!-- STRIPE -->
       <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:12px 0;min-height:20px;text-align:center"></div>
       <div id="payment-element"></div>
       <div class="cf-turnstile" data-sitekey="0x4AAAAAADBORMa7rqudzZrP" data-callback="onTurnstileSuccess" data-theme="dark" style="margin:16px 0"></div>
-      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5;margin-top:16px">
+      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5;margin-top:16px" data-disabled-msg="Please agree to the terms above first">
         ✦ Unlock Now — $4.99 ✦
       </button>
 
@@ -297,10 +300,12 @@ function togglePayButton(){
 }
 function activatePayBtn(checked){
   var btn = document.getElementById('btn-pay');
+  var hint = document.getElementById('agree-hint');
   if(!btn) return;
   btn.disabled = !checked;
   btn.style.opacity = checked ? '1' : '0.5';
   btn.style.cursor = checked ? 'pointer' : 'not-allowed';
+  if(hint) hint.style.display = checked ? 'none' : 'block';
 }
 </script>
 <script src="/js/geocode.js" defer></script>
