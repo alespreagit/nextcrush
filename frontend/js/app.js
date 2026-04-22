@@ -1,3 +1,4 @@
+const API_BASE = "https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws";
 // ═══════════════════════════════════════════
 // APP.JS — Main application logic
 // ═══════════════════════════════════════════
@@ -673,7 +674,7 @@ function renderGiftAndReferral(result){
     section.style.cssText = 'background:linear-gradient(135deg,rgba(26,15,46,.7),rgba(8,6,22,.8));border:1px solid rgba(201,168,76,.18);padding:28px 32px;margin-bottom:24px;position:relative;text-align:center';
     section.innerHTML = '<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:16px">✦ Your Gift Codes ✦</div>' +
       '<div style="font-size:14px;color:var(--text-dim);font-style:italic;margin-bottom:20px;line-height:1.7">Share these codes with friends — each unlocks a free full reading at nextcrush.app</div>' +
-      giftCodes.map(code => '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold-light);letter-spacing:.15em;padding:12px;border:1px solid rgba(201,168,76,.3);margin-bottom:8px;cursor:pointer" onclick="copyCode(this,''+code+'')">' + code + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>').join('') +
+      giftCodes.map(code => '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold-light);letter-spacing:.15em;padding:12px;border:1px solid rgba(201,168,76,.3);margin-bottom:8px;cursor:pointer" onclick="copyCode(this,this.dataset.code)" data-code="' + code + '">' + code + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>').join('') +
       '<div style="font-size:12px;color:var(--text-dim);font-style:italic;margin-top:8px">Codes never expire</div>';
 
     const shareCard = document.querySelector('.share-card');
@@ -690,7 +691,7 @@ function renderGiftAndReferral(result){
     section.style.cssText = 'background:rgba(8,6,22,.7);border:1px solid rgba(201,168,76,.12);padding:24px 28px;margin-bottom:24px;text-align:center';
     section.innerHTML = '<div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;opacity:.7">✦ Your Referral Link ✦</div>' +
       '<div style="font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:16px;line-height:1.6">When a friend signs up using your link and pays, you get a free reading credit automatically.</div>' +
-      '<div style="font-family:Cinzel,serif;font-size:13px;color:var(--gold-light);letter-spacing:.1em;padding:10px;border:1px solid rgba(201,168,76,.2);cursor:pointer;margin-bottom:8px" onclick="copyRefLink(''+refCode+'')">nextcrush.app?ref=' + refCode + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>';
+      '<div style="font-family:Cinzel,serif;font-size:13px;color:var(--gold-light);letter-spacing:.1em;padding:10px;border:1px solid rgba(201,168,76,.2);cursor:pointer;margin-bottom:8px" data-ref="' + refCode + '" onclick="copyRefLink(this.dataset.ref)">nextcrush.app?ref=' + refCode + ' <span style="font-size:10px;opacity:.5">tap to copy</span></div>';
 
     const shareCard = document.querySelector('.share-card');
     if(shareCard) shareCard.parentNode.insertBefore(section, shareCard);
@@ -701,7 +702,8 @@ function copyCode(el, code){
   navigator.clipboard.writeText(code).then(() => showToast('Code copied: ' + code));
 }
 
-function copyRefLink(refCode){
+function copyRefLink(elOrCode){
+  const refCode = typeof elOrCode === 'string' ? elOrCode : elOrCode.dataset.ref;
   const url = 'https://nextcrush.app?ref=' + refCode;
   navigator.clipboard.writeText(url).then(() => showToast('Referral link copied!'));
 }
