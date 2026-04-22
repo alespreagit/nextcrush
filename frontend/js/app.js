@@ -396,7 +396,7 @@ window.streamOracleText = streamOracleText;
 
 
 // ── INIT ON LOAD ──
-document.addEventListener('DOMContentLoaded', function(){
+window.addEventListener('load', function(){
   if(window.Geocode) window.Geocode.initCityAutocomplete();
   if(window.Payment){
     window.showPayment = Payment.showPayment;
