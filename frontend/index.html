@@ -322,7 +322,16 @@ function showStep(id){
 
 function showPayment(){
   showStep('step-payment');
-  if(window.Payment) Payment.setupPaymentElement(window.selectedProduct || 'single');
+  // Try immediately, retry if Payment not loaded yet
+  if(window.Payment && window.Payment.setupPaymentElement){
+    window.Payment.setupPaymentElement(window.selectedProduct || 'single');
+  } else {
+    setTimeout(function(){
+      if(window.Payment && window.Payment.setupPaymentElement){
+        window.Payment.setupPaymentElement(window.selectedProduct || 'single');
+      }
+    }, 500);
+  }
 }
 
 function showFreeResult(){

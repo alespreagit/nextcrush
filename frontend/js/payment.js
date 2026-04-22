@@ -39,7 +39,7 @@ async function createPaymentIntent(){
   return data;
 }
 
-async function setupPaymentElement(){
+async function setupPaymentElement(product){
   initStripe();
   const container = document.getElementById('payment-element');
   if(!container) return;
