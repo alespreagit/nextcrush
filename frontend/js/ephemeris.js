@@ -131,10 +131,12 @@ function calcFuzzyWindow(dob, tob, gender, seeking){
     }
   }
 
-  // Add intentional fuzziness — hide precision for free tier
-  const fuzz=Math.floor(Math.random()*14)+8;
-  const low=Math.max(7,bestDay-fuzz);
-  const high=bestDay+fuzz;
+  // Deterministic fuzz — same birth data always gives same result
+  // Seed based on birth date so it never changes for same person
+  const seed = (year * 31 + month * 7 + day * 13) % 14;
+  const fuzz = seed + 8;
+  const low = Math.max(7, bestDay - fuzz);
+  const high = bestDay + fuzz;
 
   const tierLabels={
     1:'A significant partner energy is forming',

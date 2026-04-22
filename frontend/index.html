@@ -279,6 +279,17 @@
 <div id="toast" class="toast"></div>
 
 <script src="https://js.stripe.com/v3/"></script>
+<script>
+// Available immediately before deferred scripts load
+function togglePayButton(){
+  const checkbox = document.getElementById('agree-checkbox');
+  const btn = document.getElementById('btn-pay');
+  if(checkbox && btn){
+    btn.disabled = !checkbox.checked;
+    btn.style.opacity = checkbox.checked ? '1' : '0.5';
+  }
+}
+</script>
 <script src="/js/geocode.js" defer></script>
 <script src="/js/ephemeris.js" defer></script>
 <script src="/js/calendar.js" defer></script>
