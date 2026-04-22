@@ -65,12 +65,14 @@ async function createGiftCodes({ email, paymentIntentId, count }){
 }
 
 async function validateGiftCode(code){
+  console.log('Validating gift code:', code.toUpperCase().trim());
   const { data, error } = await supabase
     .from('gift_codes')
     .select('*')
     .eq('code', code.toUpperCase().trim())
     .is('redeemed_at', null)
     .single();
+  console.log('Gift code result - data:', JSON.stringify(data), 'error:', JSON.stringify(error));
   if(error || !data) return null;
   return data;
 }

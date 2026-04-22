@@ -639,9 +639,18 @@ async function redeemGiftCode(){
       statusEl.textContent = '✓ Valid gift code — your reading is free!';
       statusEl.className = 'gift-code-status valid';
       window.AppState.giftCode = code;
+      // Show email field if not already captured
+      if(!window.AppState.email){
+        statusEl.innerHTML = '✓ Valid! Enter your email to unlock your free reading:';
+        const emailRow = document.createElement('div');
+        emailRow.style.cssText = 'margin-top:10px';
+        emailRow.innerHTML = '<input type="email" id="gift-email" placeholder="your@email.com" style="width:100%;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.3);color:#d4c5a9;font-family:Cormorant Garamond,serif;font-size:16px;text-align:center"/>';
+        statusEl.appendChild(emailRow);
+      }
       // Hide payment element, show free unlock button
       document.getElementById('payment-element').style.display = 'none';
-      document.querySelector('.cf-turnstile').style.display = 'none';
+      var turnstile = document.querySelector('.cf-turnstile');
+      if(turnstile) turnstile.style.display = 'none';
       document.getElementById('btn-pay').textContent = '✦ Unlock Free Reading ✦';
       document.getElementById('btn-pay').disabled = false;
       document.getElementById('btn-pay').style.opacity = '1';

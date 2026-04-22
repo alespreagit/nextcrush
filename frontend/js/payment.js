@@ -83,6 +83,12 @@ async function submitPayment(){
   if(window.AppState.giftCode){
     const checkbox = document.getElementById('agree-checkbox');
     if(!checkbox || !checkbox.checked){ showToast('Please agree to the terms first'); return; }
+    // Capture email from gift code email field if present
+    const giftEmail = document.getElementById('gift-email');
+    if(giftEmail && giftEmail.value.trim().includes('@')){
+      window.AppState.email = giftEmail.value.trim();
+    }
+    if(!window.AppState.email){ showToast('Please enter your email first'); return; }
     await loadPaidReading(null);
     return;
   }
