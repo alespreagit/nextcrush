@@ -209,3 +209,21 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .calendar-row,.share-buttons{flex-direction:column;align-items:center}
   .payment-card{max-width:100%}
 }
+
+/* WARNING DIALOG */
+.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+.dialog-box{background:linear-gradient(135deg,rgba(26,15,46,.97),rgba(8,6,22,.98));border:1px solid rgba(201,168,76,.3);padding:36px 32px;max-width:400px;width:100%;position:relative;text-align:center}
+.dialog-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.dialog-title{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.dialog-text{font-size:15px;line-height:1.8;color:var(--text);margin-bottom:28px;font-style:italic}
+.dialog-buttons{display:flex;gap:12px;flex-direction:column}
+.dialog-btn-confirm{background:rgba(139,58,90,.2);border:1px solid rgba(196,96,127,.4);color:var(--rose-light);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;padding:14px;cursor:pointer;transition:all .3s}
+.dialog-btn-confirm:hover{background:rgba(139,58,90,.4)}
+.dialog-btn-cancel{background:none;border:1px solid rgba(201,168,76,.2);color:var(--gold);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;padding:14px;cursor:pointer;transition:all .3s}
+.dialog-btn-cancel:hover{border-color:var(--gold);background:rgba(201,168,76,.06)}
+
+/* MANDATORY EMAIL */
+.email-gate{background:linear-gradient(135deg,rgba(26,15,46,.95),rgba(8,6,22,.97));border:1px solid rgba(201,168,76,.25);padding:36px 32px;margin-bottom:24px;position:relative;text-align:center}
+.email-gate::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.email-gate-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.35em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
+.email-gate-desc{font-size:15px;line-height:1.7;color:var(--text-dim);font-style:italic;margin-bottom:24px}

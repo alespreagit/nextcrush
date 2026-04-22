@@ -269,12 +269,24 @@
       </div>
     </div>
 
-    <button class="btn btn-ghost" onclick="resetForm()" style="margin-top:24px">← New Reading</button>
+    <button class="btn btn-ghost" onclick="showResetDialog()" style="margin-top:24px">← New Reading</button>
   </div>
 
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- WARNING DIALOG -->
+<div id="reset-dialog" class="dialog-overlay" style="display:none">
+  <div class="dialog-box">
+    <div class="dialog-title">⚠ Start Over?</div>
+    <div class="dialog-text">Starting a new reading will clear your current chart and countdown forever. This cannot be undone.</div>
+    <div class="dialog-buttons">
+      <button class="dialog-btn-cancel" onclick="confirmReset()">Yes, start a new reading</button>
+      <button class="dialog-btn-confirm" onclick="closeResetDialog()">✦ Keep my current reading</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>

@@ -543,3 +543,47 @@ function dismissBanner(){
 
 window.restoreReading = restoreReading;
 window.dismissBanner = dismissBanner;
+
+// ── RESET WARNING DIALOG ──
+function showResetDialog(){
+  const saved = loadReadingLocally();
+  if(saved){
+    document.getElementById('reset-dialog').style.display = 'flex';
+  } else {
+    // No saved reading, just reset directly
+    resetForm();
+  }
+}
+
+function closeResetDialog(){
+  document.getElementById('reset-dialog').style.display = 'none';
+}
+
+function confirmReset(){
+  closeResetDialog();
+  resetForm();
+}
+
+// ── MANDATORY EMAIL + PAY ──
+function submitEmailAndPay(){
+  const email = document.getElementById('email-input')?.value?.trim();
+  if(email && email.includes('@')){
+    window.AppState.email = email;
+    // Save email silently
+    fetch(API_BASE + '/user/register', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email,
+        birthData: window.AppState.birthData,
+        freeResult: window.AppState.freeResult
+      })
+    }).catch(e => console.log('Email save:', e));
+  }
+  showPayment();
+}
+
+window.showResetDialog = showResetDialog;
+window.closeResetDialog = closeResetDialog;
+window.confirmReset = confirmReset;
+window.submitEmailAndPay = submitEmailAndPay;
