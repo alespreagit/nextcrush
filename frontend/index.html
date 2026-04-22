@@ -11,7 +11,6 @@
 <meta property="og:title" content="Next Crush — Cosmic Love Timing">
 <meta property="og:description" content="Discover your next romantic window using real planetary transits and Bazi Four Pillars.">
 <meta property="og:url" content="https://nextcrush.app">
-<meta property="og:image" content="https://nextcrush.app/icons/icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles/main.css">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -77,14 +76,13 @@
 
   <!-- STEP 2: FREE RESULT -->
   <div id="step-free" class="step">
-
     <div class="free-badge">✦ Free Preview</div>
 
     <div class="clock-card">
       <div class="clock-label">✦ Your Next Crush Window ✦</div>
       <div class="clock-type" id="free-tier-label"></div>
       <div class="fuzzy-window" id="fuzzy-window"></div>
-      <div class="fuzzy-sub">Precise timing unlocked with full reading</div>
+      <div class="fuzzy-sub">This is an approximate window — precise timing unlocked with full reading</div>
     </div>
 
     <div class="oracle-card">
@@ -98,7 +96,7 @@
       <div class="oracle-teaser" id="oracle-teaser"></div>
       <div class="oracle-blur">
         <div class="blur-text">Your Venus creates a rare alignment with the incoming Jupiter transit... the precise window opens when the stars converge on your natal chart...</div>
-        <div class="unlock-overlay" onclick="showPayment()">
+        <div class="unlock-overlay" onclick="ncShowPayment()">
           <span class="lock-icon">🔒</span>
           <span>Unlock Full Reading</span>
         </div>
@@ -139,30 +137,26 @@
       </div>
     </div>
 
-    <div class="card email-card" id="email-card">
-      <div class="card-title">✦ Save Your Reading ✦</div>
-      <p class="email-desc">Enter your email to save your chart and get notified when your window approaches.</p>
-      <div class="form-group">
+    <!-- EMAIL GATE -->
+    <div class="email-gate" id="email-gate">
+      <div class="email-gate-title">✦ Where Should We Send Your Reading? ✦</div>
+      <div class="email-gate-desc">Enter your email to receive your reading and get reminded 7 days before your window opens.</div>
+      <div class="form-group" style="margin-bottom:16px">
         <label>Email Address</label>
-        <input type="email" id="email-input" placeholder="you@example.com"/>
+        <input type="email" id="email-input" placeholder="you@example.com" style="text-align:center"/>
       </div>
-      <button class="btn" onclick="saveEmail()">Save My Reading</button>
-      <div class="skip-link" onclick="showPayment()">Skip → Unlock Full Reading Now</div>
+      <button class="btn btn-unlock" onclick="ncSubmitEmailAndPay()">🔮 Unlock Full Reading — $4.99</button>
+      <div class="skip-link" onclick="ncShowPayment()">Skip email → Pay now</div>
     </div>
 
-    <button class="btn btn-unlock" onclick="showPayment()">
-      🔮 Unlock Full Reading — $4.99
-    </button>
-
-    <button class="btn btn-ghost" onclick="resetForm()">← Start Over</button>
+    <button class="btn btn-ghost" onclick="ncShowResetDialog()">← Start Over</button>
   </div>
 
-   <!-- STEP 3: PAYMENT -->
+  <!-- STEP 3: PAYMENT -->
   <div id="step-payment" class="step">
     <div class="card payment-card">
       <div class="card-title">✦ Unlock Your Full Reading ✦</div>
 
-      <!-- PRODUCT SELECTION -->
       <div class="product-options">
         <div class="product-option active" id="opt-single" onclick="selectProduct('single')">
           <div class="product-option-header">
@@ -176,11 +170,10 @@
             <div class="product-name">✦ Reading Pack</div>
             <div class="product-price">$9.99 <span class="product-badge">BEST VALUE</span></div>
           </div>
-          <div class="product-desc">Everything in Single + 2 gift codes to share with friends. Each code unlocks a free full reading.</div>
+          <div class="product-desc">Everything in Single + 2 gift codes to share with friends. Each unlocks a free full reading.</div>
         </div>
       </div>
 
-      <!-- GIFT CODE REDEMPTION -->
       <div class="gift-code-section">
         <div class="gift-code-label">✦ Have a gift code?</div>
         <div class="gift-code-row">
@@ -190,7 +183,7 @@
         <div id="gift-code-status" class="gift-code-status"></div>
       </div>
 
-      <div class="payment-features" id="payment-features">
+      <div class="payment-features">
         <div class="feature-item">⏱ Precise countdown to the minute</div>
         <div class="feature-item">🪐 All 5 love windows with exact transit data</div>
         <div class="feature-item">🔮 Full AI oracle reading — personalised prose</div>
@@ -201,13 +194,11 @@
 
       <div class="price-tag" id="price-display">$4.99 <span class="price-sub">one-time · yours forever</span></div>
 
-      <!-- DISCLAIMER -->
       <div class="disclaimer-box">
         <div class="disclaimer-title">✦ Before You Purchase ✦</div>
         <p>Next Crush uses real Swiss Ephemeris planetary data and authentic Bazi methodology. This is an entertainment and self-reflection tool — not a guarantee of romantic outcomes.</p>
       </div>
 
-      <!-- NO REFUND CHECKBOX -->
       <div class="no-refund-box">
         <label class="checkbox-label">
           <input type="checkbox" id="agree-checkbox" onchange="activatePayBtn(this.checked)"/>
@@ -215,9 +206,22 @@
         </label>
       </div>
 
-      <!-- STRIPE -->
-      <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.​​​​​​​​​​​​​​​​
+      <div id="payment-error" style="color:#c4607f;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:12px 0;min-height:20px;text-align:center"></div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADBORMa7rqudzZrP" data-callback="onTurnstileSuccess" data-theme="dark" style="margin:16px 0"></div>
+      <div id="payment-element"></div>
 
+      <div id="agree-hint" style="text-align:center;font-family:Cinzel,serif;font-size:9px;letter-spacing:0.25em;color:rgba(196,96,127,0.7);text-transform:uppercase;padding:8px 0;margin-bottom:8px">
+        ✦ Please agree above to activate payment
+      </div>
+
+      <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()" disabled style="opacity:0.5;margin-top:16px">
+        ✦ Unlock Now — $4.99 ✦
+      </button>
+
+      <div class="payment-note">🔒 Secured by Stripe · No subscription · Instant unlock · All sales final</div>
+      <div class="btn-ghost" onclick="ncShowFreeResult()">← Back</div>
+    </div>
+  </div>
 
   <!-- STEP 4: PAID RESULT -->
   <div id="step-paid" class="step">
@@ -273,13 +277,10 @@
       </div>
     </div>
 
-    <!-- SHARE -->
     <div class="share-card">
       <div class="share-title">✦ Share the Magic ✦</div>
-      <div class="share-desc">Know someone who needs to find their next crush? Share Next Crush with them.</div>
-      <div class="share-preview" id="share-preview">
-        "I just discovered my next love window using Next Crush — a cosmic timing engine based on real planetary transits and Bazi astrology. Try it at nextcrush.app ✨"
-      </div>
+      <div class="share-desc">Know someone who needs to find their next crush?</div>
+      <div class="share-preview" id="share-preview">I just discovered my next love window using Next Crush — try it at nextcrush.app ✨</div>
       <div class="share-buttons">
         <button class="share-btn" onclick="shareWhatsApp()">💬 WhatsApp</button>
         <button class="share-btn" onclick="shareTwitter()">𝕏 Twitter/X</button>
@@ -288,7 +289,7 @@
       </div>
     </div>
 
-    <button class="btn btn-ghost" onclick="showResetDialog()" style="margin-top:24px">← New Reading</button>
+    <button class="btn btn-ghost" onclick="ncShowResetDialog()" style="margin-top:24px">← New Reading</button>
   </div>
 
 </div>
@@ -301,47 +302,66 @@
     <div class="dialog-title">⚠ Start Over?</div>
     <div class="dialog-text">Starting a new reading will clear your current chart and countdown forever. This cannot be undone.</div>
     <div class="dialog-buttons">
-      <button class="dialog-btn-cancel" onclick="confirmReset()">Yes, start a new reading</button>
-      <button class="dialog-btn-confirm" onclick="closeResetDialog()">✦ Keep my current reading</button>
+      <button class="dialog-btn-cancel" onclick="ncConfirmReset()">Yes, start a new reading</button>
+      <button class="dialog-btn-confirm" onclick="ncCloseResetDialog()">✦ Keep my current reading</button>
     </div>
   </div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-// Global constants available immediately
+// ── GLOBAL VARS ──
 var API_BASE = "https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws";
 var selectedProduct = "single";
 
-// Core navigation functions available immediately
-function showStep(id){
+// ── CORE NAVIGATION ──
+function ncShowStep(id){
   document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
   var el = document.getElementById(id);
   if(el){ el.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
 }
 
-function showPayment(){
-  console.log('showPayment called');
-  showStep('step-payment');
-  var debugBox = document.getElementById('debug-box');
-  if(debugBox){ debugBox.style.display='block'; debugBox.innerHTML += '<br>showPayment called. Payment=' + (window.Payment ? 'loaded' : 'NOT loaded'); }
+function ncShowPayment(){
+  ncShowStep('step-payment');
   setTimeout(function(){
     if(window.Payment && window.Payment.setupPaymentElement){
       window.Payment.setupPaymentElement(window.selectedProduct || 'single');
-    } else {
-      if(debugBox) debugBox.innerHTML += '<br>Payment object not available';
     }
-  }, 800);
+  }, 300);
 }
 
-function showFreeResult(){
-  showStep('step-free');
+function ncShowFreeResult(){
+  ncShowStep('step-free');
 }
-</script>
-<script>
-function togglePayButton(){
-  activatePayBtn(document.getElementById('agree-checkbox').checked);
+
+function ncSubmitEmailAndPay(){
+  var email = document.getElementById('email-input') && document.getElementById('email-input').value.trim();
+  if(email && email.includes('@')){
+    window.AppState = window.AppState || {};
+    window.AppState.email = email;
+  }
+  ncShowPayment();
 }
+
+function ncShowResetDialog(){
+  var saved = null;
+  try { saved = localStorage.getItem('nc_reading'); } catch(e){}
+  if(saved){ document.getElementById('reset-dialog').style.display = 'flex'; }
+  else { if(window.resetForm) resetForm(); else ncShowStep('step-form'); }
+}
+
+function ncCloseResetDialog(){
+  document.getElementById('reset-dialog').style.display = 'none';
+}
+
+function ncConfirmReset(){
+  ncCloseResetDialog();
+  try { localStorage.removeItem('nc_reading'); } catch(e){}
+  if(window.resetForm) resetForm();
+  else ncShowStep('step-form');
+}
+
+// ── CHECKBOX ──
 function activatePayBtn(checked){
   var btn = document.getElementById('btn-pay');
   var hint = document.getElementById('agree-hint');
@@ -351,18 +371,16 @@ function activatePayBtn(checked){
   btn.style.cursor = checked ? 'pointer' : 'not-allowed';
   if(hint) hint.style.display = checked ? 'none' : 'block';
 }
+
+// ── TURNSTILE ──
+window.turnstileToken = null;
+function onTurnstileSuccess(token){ window.turnstileToken = token; }
 </script>
+
 <script src="/js/geocode.js" defer></script>
 <script src="/js/ephemeris.js" defer></script>
 <script src="/js/calendar.js" defer></script>
 <script src="/js/payment.js" defer></script>
 <script src="/js/app.js" defer></script>
-<script>
-window.onerror = function(msg, src, line, col, err){
-  var box = document.getElementById('debug-box');
-  if(!box){ box = document.createElement('div'); box.id='debug-box'; box.style.cssText='position:fixed;bottom:0;left:0;right:0;background:red;color:white;padding:10px;font-size:12px;z-index:9999;'; document.body.appendChild(box); }
-  box.innerHTML += '<br>' + msg + ' (line '+line+')';
-};
-</script>
 </body>
 </html>
