@@ -106,19 +106,24 @@ function calcFuzzyWindow(dob, tob, gender, seeking){
 
     let score=0,tier=3;
 
+    // Seeking weights
+    const jWeight = seeking==='partner' ? 50 : seeking==='crush' ? 30 : 15;
+    const vWeight = seeking==='crush' ? 40 : seeking==='encounter' ? 30 : 25;
+    const mWeight = seeking==='encounter' ? 35 : seeking==='crush' ? 25 : 15;
+
     // Venus conjunct natal Venus (Venus Return)
     const vvDelta=Math.abs(((tVenus-natalVenus+180)%360)-180);
-    if(vvDelta<8){score+=30;tier=Math.min(tier,2)}
-    if(vvDelta<4){score+=20;tier=Math.min(tier,1)}
+    if(vvDelta<8){score+=vWeight;tier=Math.min(tier,2)}
+    if(vvDelta<4){score+=vWeight*0.5;tier=Math.min(tier,seeking==='partner'?2:1)}
 
     // Jupiter aspecting natal Venus
     const jvDelta=Math.abs(((tJupiter-natalVenus+180)%360)-180);
-    if(jvDelta<10){score+=40;tier=Math.min(tier,1)}
-    if(jvDelta<5){score+=20}
+    if(jvDelta<10){score+=jWeight;tier=Math.min(tier,1)}
+    if(jvDelta<5){score+=jWeight*0.5}
 
     // Venus aspecting natal Mars
     const vmDelta=Math.abs(((tVenus-natalMars+180)%360)-180);
-    if(vmDelta<8){score+=20;tier=Math.min(tier,2)}
+    if(vmDelta<8){score+=mWeight;tier=Math.min(tier,seeking==='encounter'?1:2)}
 
     // Sun on natal Venus
     const svDelta=Math.abs(((tSun-natalVenus+180)%360)-180);
@@ -133,7 +138,8 @@ function calcFuzzyWindow(dob, tob, gender, seeking){
 
   // Deterministic fuzz — same birth data always gives same result
   // Seed based on birth date so it never changes for same person
-  const seed = (year * 31 + month * 7 + day * 13) % 14;
+  const seekSeed = seeking==='partner' ? 3 : seeking==='crush' ? 7 : 11;
+  const seed = (year * 31 + month * 7 + day * 13 + seekSeed) % 14;
   const fuzz = seed + 8;
   const low = Math.max(7, bestDay - fuzz);
   const high = bestDay + fuzz;
