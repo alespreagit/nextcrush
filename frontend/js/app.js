@@ -1,3 +1,4 @@
+const API_BASE = "https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws";
 // ═══════════════════════════════════════════
 // APP.JS — Main application logic
 // ═══════════════════════════════════════════

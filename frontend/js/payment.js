@@ -2,8 +2,8 @@
 // PAYMENT.JS — Stripe integration
 // ═══════════════════════════════════════════
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_REPLACE_WITH_YOUR_KEY';
-const API_BASE = 'https://api.nextcrush.app';
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TOklHBtnWLVsV60okJRRMv8lkslxxjHyeg3sg4kguC3tZ404Zlst6Ce3jXXJrdmBV3SBiZUH0EIVoZ2RBNf9OYA00fOD4Hsnb';
+const API_BASE = 'https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws';
 
 let stripe = null;
 let elements = null;
