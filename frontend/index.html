@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Crush — When Will You Fall in Love?</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#03020a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="Next Crush — Cosmic Love Timing">
+<meta property="og:description" content="Discover your next romantic window using real planetary transits and Bazi Four Pillars.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula"></div>
+
+<div class="container">
+  <header>
+    <span class="logo-glyph">♀</span>
+    <span class="logo-title">NEXT CRUSH</span>
+    <span class="logo-sub">Cosmic Love Timing Engine</span>
+    <div class="divider"></div>
+  </header>
+
+  <!-- STEP 1: FORM -->
+  <div id="step-form" class="step active">
+    <div class="card">
+      <div class="card-title">✦ Cast Your Chart ✦</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" id="dob"/>
+        </div>
+        <div class="form-group">
+          <label>Time of Birth</label>
+          <input type="time" id="tob"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">— Select —</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="N">Non-binary</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Seeking</label>
+          <select id="seeking">
+            <option value="">— Select —</option>
+            <option value="partner">Long-term Partner</option>
+            <option value="crush">Next Crush</option>
+            <option value="encounter">Romantic Encounter</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label>City of Birth</label>
+          <input type="text" id="city" placeholder="e.g. New York, London, Tokyo…"/>
+        </div>
+      </div>
+      <button class="btn" id="btn-calculate" onclick="startCalculation()">✦ Reveal My Next Crush ✦</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: FREE RESULT -->
+  <div id="step-free" class="step">
+
+    <div class="free-badge">✦ Free Preview</div>
+
+    <!-- FUZZY CLOCK -->
+    <div class="clock-card">
+      <div class="clock-label">✦ Your Next Crush Window ✦</div>
+      <div class="clock-type" id="free-tier-label"></div>
+      <div class="fuzzy-window" id="fuzzy-window"></div>
+      <div class="fuzzy-sub">Precise timing unlocked with full reading</div>
+    </div>
+
+    <!-- TEASER ORACLE -->
+    <div class="oracle-card">
+      <div class="oracle-header">
+        <span class="oracle-icon">🔮</span>
+        <div>
+          <div class="oracle-title">The Oracle Speaks</div>
+          <div class="oracle-subtitle">A glimpse of your cosmic love pattern</div>
+        </div>
+      </div>
+      <div class="oracle-teaser" id="oracle-teaser"></div>
+      <div class="oracle-blur">
+        <div class="blur-text">Your Venus in [sign] creates a rare alignment with the incoming Jupiter transit... the precise window opens when...</div>
+        <div class="unlock-overlay">
+          <span class="lock-icon">🔒</span>
+          <span>Unlock Full Reading</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCKED WINDOWS -->
+    <div class="windows-title">✦ Your Love Windows ✦</div>
+    <div class="locked-windows">
+      <div class="locked-item tier-1">
+        <div class="locked-header">
+          <div class="locked-date">——— / ——— / ————</div>
+          <div class="locked-tier tier-badge-1">❤ Partner Potential</div>
+        </div>
+        <div class="locked-content">
+          <div class="locked-bar"></div>
+          <div class="locked-bar short"></div>
+        </div>
+      </div>
+      <div class="locked-item tier-2">
+        <div class="locked-header">
+          <div class="locked-date">——— / ——— / ————</div>
+          <div class="locked-tier tier-badge-2">✦ Crush Likely</div>
+        </div>
+        <div class="locked-content">
+          <div class="locked-bar"></div>
+          <div class="locked-bar short"></div>
+        </div>
+      </div>
+      <div class="locked-item tier-3">
+        <div class="locked-header">
+          <div class="locked-date">——— / ——— / ————</div>
+          <div class="locked-tier tier-badge-3">◈ Encounter</div>
+        </div>
+        <div class="locked-content">
+          <div class="locked-bar"></div>
+          <div class="locked-bar short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMAIL CAPTURE -->
+    <div class="card email-card" id="email-card">
+      <div class="card-title">✦ Save Your Reading ✦</div>
+      <p class="email-desc">Enter your email to save your chart and get notified when your window approaches.</p>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email-input" placeholder="you@example.com"/>
+      </div>
+      <button class="btn" onclick="saveEmail()">Save My Reading</button>
+      <div class="skip-link" onclick="showPayment()">Skip → Unlock Full Reading Now</div>
+    </div>
+
+    <button class="btn btn-unlock" onclick="showPayment()">
+      🔮 Unlock Full Reading — $4.99
+    </button>
+
+    <button class="btn btn-ghost" onclick="resetForm()">← Start Over</button>
+  </div>
+
+  <!-- STEP 3: PAYMENT -->
+  <div id="step-payment" class="step">
+    <div class="card payment-card">
+      <div class="card-title">✦ Unlock Your Full Reading ✦</div>
+      <div class="payment-features">
+        <div class="feature-item">⏱ Precise countdown to the minute</div>
+        <div class="feature-item">🪐 All 5 love windows with exact transit data</div>
+        <div class="feature-item">🔮 Full AI oracle reading (personalised prose)</div>
+        <div class="feature-item">📅 Add windows to your calendar</div>
+        <div class="feature-item">📊 Complete Bazi Four Pillars chart</div>
+        <div class="feature-item">🌟 Natal planetary positions (Swiss Ephemeris)</div>
+      </div>
+      <div class="price-tag">$4.99 <span class="price-sub">one-time · yours forever</span></div>
+      <div id="stripe-container">
+        <div id="payment-element"></div>
+        <button class="btn btn-pay" id="btn-pay" onclick="submitPayment()">✦ Unlock Now — $4.99 ✦</button>
+      </div>
+      <div class="payment-note">🔒 Secured by Stripe · No subscription · Instant unlock</div>
+      <div class="btn-ghost" onclick="showFreeResult()">← Back</div>
+    </div>
+  </div>
+
+  <!-- STEP 4: PAID RESULT -->
+  <div id="step-paid" class="step">
+    <div class="paid-badge">✦ Full Reading Unlocked</div>
+    <div class="profile-strip" id="profile-badges"></div>
+
+    <!-- PRECISE CLOCK -->
+    <div class="clock-card clock-paid">
+      <div class="clock-label">✦ Highest Probability Window ✦</div>
+      <div class="clock-type" id="paid-window-type"></div>
+      <div class="clock-transit" id="paid-clock-transit"></div>
+      <div class="countdown-grid">
+        <div class="countdown-unit"><div class="countdown-num" id="cd-days">00</div><div class="countdown-unit-label">Days</div></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-hours">00</div><div class="countdown-unit-label">Hours</div></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-mins">00</div><div class="countdown-unit-label">Minutes</div></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-secs">00</div><div class="countdown-unit-label">Seconds</div></div>
+      </div>
+      <div class="target-date" id="paid-target-date"></div>
+
+      <!-- CALENDAR BUTTONS -->
+      <div class="calendar-row">
+        <button class="cal-btn" id="btn-gcal" onclick="addToGoogleCalendar()">📅 Google Calendar</button>
+        <button class="cal-btn" id="btn-ical" onclick="downloadICS()">📱 Apple Calendar</button>
+      </div>
+    </div>
+
+    <!-- ORACLE -->
+    <div class="oracle-card oracle-paid">
+      <div class="oracle-header">
+        <span class="oracle-icon">🔮</span>
+        <div>
+          <div class="oracle-title">The Oracle Speaks</div>
+          <div class="oracle-subtitle">Your personalised celestial love reading</div>
+        </div>
+      </div>
+      <div class="oracle-text" id="oracle-text">
+        <div class="oracle-loading"><span>The oracle is reading your chart</span><div class="oracle-dots"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>
+
+    <!-- WINDOWS -->
+    <div class="windows-title">✦ Your Love Windows ✦</div>
+    <div id="windows-list"></div>
+
+    <!-- PLANET TABLE -->
+    <div class="planet-table-card">
+      <div class="planet-table-title">Natal Planetary Positions</div>
+      <div class="planet-grid" id="planet-grid"></div>
+    </div>
+
+    <!-- BAZI -->
+    <div class="chart-section">
+      <div class="windows-title">✦ Your Celestial Blueprint ✦</div>
+      <div class="chart-grid">
+        <div class="chart-block"><div class="chart-block-title">Bazi — Four Pillars</div><div id="bazi-pillars"></div></div>
+        <div class="chart-block"><div class="chart-block-title">Western — Love Signatures</div><div class="venus-info" id="venus-info"></div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" onclick="resetForm()" style="margin-top:40px">← New Reading</button>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/js/ephemeris.js"></script>
+<script src="/js/calendar.js"></script>
+<script src="/js/payment.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
