@@ -78,6 +78,12 @@ async function setupPaymentElement(){
 }
 
 async function submitPayment(){
+  // Double check agreement even if button was bypassed
+  const checkbox = document.getElementById('agree-checkbox');
+  if(!checkbox || !checkbox.checked){
+    showToast('Please agree to the terms first');
+    return;
+  }
   if(!stripe||!elements){
     showToast('Payment not ready yet');
     return;
