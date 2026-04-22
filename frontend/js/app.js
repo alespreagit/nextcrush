@@ -606,13 +606,15 @@ window.onTurnstileSuccess = onTurnstileSuccess;
 
 function selectProduct(product){
   window.selectedProduct = product;
-  document.getElementById('opt-single').classList.toggle('active', product === 'single');
-  document.getElementById('opt-pack').classList.toggle('active', product === 'pack');
+  const optSingle = document.getElementById('opt-single');
+  const optPack = document.getElementById('opt-pack');
+  const priceDisplay = document.getElementById('price-display');
+  const btnPay = document.getElementById('btn-pay');
+  if(optSingle) optSingle.classList.toggle('active', product === 'single');
+  if(optPack) optPack.classList.toggle('active', product === 'pack');
   const price = product === 'pack' ? '$9.99' : '$4.99';
-  const label = product === 'pack' ? 'Reading Pack — $9.99' : 'Single Reading — $4.99';
-  document.getElementById('price-display').innerHTML = price + ' <span class="price-sub">one-time · yours forever</span>';
-  document.getElementById('btn-pay').textContent = '✦ Unlock Now — ' + price + ' ✦';
-  // Re-init payment element with new amount
+  if(priceDisplay) priceDisplay.innerHTML = price + ' <span class="price-sub">one-time · yours forever</span>';
+  if(btnPay) btnPay.textContent = '✦ Unlock Now — ' + price + ' ✦';
   if(window.Payment) Payment.setupPaymentElement(product);
 }
 
