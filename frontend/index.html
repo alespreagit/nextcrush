@@ -312,6 +312,22 @@
 // Global constants available immediately
 var API_BASE = "https://3vpmm532vwxmruchj6dsz6xfhu0sagil.lambda-url.us-east-1.on.aws";
 var selectedProduct = "single";
+
+// Core navigation functions available immediately
+function showStep(id){
+  document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById(id);
+  if(el){ el.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function showPayment(){
+  showStep('step-payment');
+  if(window.Payment) Payment.setupPaymentElement(window.selectedProduct || 'single');
+}
+
+function showFreeResult(){
+  showStep('step-free');
+}
 </script>
 <script>
 function togglePayButton(){
