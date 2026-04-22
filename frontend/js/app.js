@@ -419,3 +419,68 @@ window.startCalculation = function(){
   }
   _origStart();
 };
+
+// ── LEGAL ──
+function togglePayButton(){
+  const checkbox = document.getElementById('agree-checkbox');
+  const btn = document.getElementById('btn-pay');
+  if(checkbox && btn){
+    btn.disabled = !checkbox.checked;
+    btn.style.opacity = checkbox.checked ? '1' : '0.5';
+  }
+}
+window.togglePayButton = togglePayButton;
+
+// ── SHARE ──
+function buildShareText(){
+  const windows = window.AppState?.paidResult?.windows;
+  const top = windows?.[0];
+  let days = '?';
+  if(top?.date){
+    const diff = Math.round((new Date(top.date) - new Date()) / 86400000);
+    days = diff;
+  }
+  return 'I just discovered my next love window is in ' + days + ' days using Next Crush — a cosmic timing engine based on real planetary transits and Bazi astrology. Try it at nextcrush.app';
+}
+
+function updateSharePreview(){
+  const el = document.getElementById('share-preview');
+  if(el) el.textContent = buildShareText();
+}
+
+function shareWhatsApp(){
+  const text = encodeURIComponent(buildShareText());
+  window.open('https://wa.me/?text=' + text, '_blank');
+}
+
+function shareTwitter(){
+  const text = encodeURIComponent(buildShareText());
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+}
+
+function copyShareLink(){
+  const text = buildShareText();
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+  } else {
+    showToast('nextcrush.app');
+  }
+}
+
+function shareNative(){
+  if(navigator.share){
+    navigator.share({
+      title: 'Next Crush',
+      text: buildShareText(),
+      url: 'https://nextcrush.app'
+    });
+  } else {
+    copyShareLink();
+  }
+}
+
+window.shareWhatsApp = shareWhatsApp;
+window.shareTwitter = shareTwitter;
+window.copyShareLink = copyShareLink;
+window.shareNative = shareNative;
+window.updateSharePreview = updateSharePreview;
