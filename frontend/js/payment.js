@@ -29,8 +29,11 @@ async function createPaymentIntent(){
   const data = await res.json();
   if(!res.ok){
     console.error('Payment intent error:', data);
-    showToast('Error: ' + (data.message || data.error || 'Payment setup failed'));
-    throw new Error(data.message || 'Payment setup failed');
+    const errMsg = data.message || data.error || 'Payment setup failed';
+    // Show permanently in page
+    const errDiv = document.getElementById('payment-error');
+    if(errDiv) errDiv.textContent = 'Error: ' + errMsg;
+    throw new Error(errMsg);
   }
   return data;
 }
