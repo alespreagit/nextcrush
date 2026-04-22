@@ -2,11 +2,11 @@
 // CHART.JS — FreeAstroAPI calls
 // Real Swiss Ephemeris + Real Bazi
 // ═══════════════════════════════════════════
-
 const axios = require('axios');
 const oracle = require('./oracle');
 const payment = require('./payment');
 const { saveReading, createGiftCodes, createReferralCode, validateGiftCode, redeemGiftCode } = require('./db');
+const { sendGiftCodes, sendReadingSummary } = require('./email');
 
 const ASTRO_API = 'https://api.freeastroapi.com/api/v1';
 const ASTRO_KEY = process.env.FREEASTRO_API_KEY;
