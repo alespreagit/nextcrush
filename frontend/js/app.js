@@ -587,3 +587,11 @@ window.showResetDialog = showResetDialog;
 window.closeResetDialog = closeResetDialog;
 window.confirmReset = confirmReset;
 window.submitEmailAndPay = submitEmailAndPay;
+
+// ── TURNSTILE ──
+window.turnstileToken = null;
+
+function onTurnstileSuccess(token){
+  window.turnstileToken = token;
+}
+window.onTurnstileSuccess = onTurnstileSuccess;

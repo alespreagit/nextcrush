@@ -23,7 +23,8 @@ async function createPaymentIntent(){
       amount: 499,
       currency: 'usd',
       email: window.AppState?.email || '',
-      birthData: window.AppState?.birthData || {}
+      birthData: window.AppState?.birthData || {},
+      turnstileToken: window.turnstileToken || null
     })
   });
   const data = await res.json();
