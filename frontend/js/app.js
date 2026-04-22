@@ -419,3 +419,44 @@ document.addEventListener('DOMContentLoaded', function(){
     window.addToGoogleCalendar = Calendar.addToGoogleCalendar;
   }
 });
+
+// ── INIT GEOCODE ON LOAD ──
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.Geocode) window.Geocode.initCityAutocomplete();
+});
+
+// ── OVERRIDE startCalculation to include coords ──
+const _origCalc = window.startCalculation;
+window.startCalculation = function(){
+  const cityData = window.Geocode ? window.Geocode.getCityData() : null;
+  if(cityData){
+    window.AppState.cityData = cityData;
+    if(cityData.lat) document.getElementById('city-lat').value = cityData.lat;
+    if(cityData.lng) document.getElementById('city-lng').value = cityData.lng;
+  }
+  // Update birthData with coords
+  const dobVal = document.getElementById('dob').value;
+  if(!dobVal){ showToast('Please enter your date of birth'); return; }
+  const tobVal = document.getElementById('tob').value;
+  const gender = document.getElementById('gender').value;
+  const seeking = document.getElementById('seeking').value;
+  if(!gender){ showToast('Please select your gender'); return; }
+  if(!seeking){ showToast('Please select what you are seeking'); return; }
+  const dob = new Date(dobVal+'T12:00:00');
+  window.AppState.birthData = {
+    dob:dobVal, tob:tobVal, gender, seeking,
+    city: cityData?.display || document.getElementById('city').value,
+    lat: cityData?.lat || null,
+    lng: cityData?.lng || null,
+    country: cityData?.country || '',
+    year:dob.getFullYear(),
+    month:dob.getMonth()+1,
+    day:dob.getDate(),
+    hour:tobVal?parseInt(tobVal.split(':')[0]):12,
+    minute:tobVal?parseInt(tobVal.split(':')[1]):0
+  };
+  const result = window.Ephemeris.calcFuzzyWindow(dob,tobVal,gender,seeking);
+  window.AppState.freeResult = result;
+  renderFreeResult(result);
+  showStep('step-free');
+};

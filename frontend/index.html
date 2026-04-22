@@ -62,7 +62,10 @@
       <div class="form-row">
         <div class="form-group full">
           <label>City of Birth</label>
-          <input type="text" id="city" placeholder="e.g. New York, London, Tokyo…"/>
+          <input type="text" id="city" placeholder="Start typing your city…" autocomplete="off"/>
+        <input type="hidden" id="city-lat"/>
+        <input type="hidden" id="city-lng"/>
+        <input type="hidden" id="city-country"/>
         </div>
       </div>
       <button class="btn" id="btn-calculate" onclick="startCalculation()">✦ Reveal My Next Crush ✦</button>
@@ -246,6 +249,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="https://js.stripe.com/v3/"></script>
+<script src="/js/geocode.js"></script>
 <script src="/js/ephemeris.js"></script>
 <script src="/js/calendar.js"></script>
 <script src="/js/payment.js"></script>
