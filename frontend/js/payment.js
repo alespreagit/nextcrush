@@ -142,6 +142,7 @@ async function loadPaidReading(paymentIntentId){
     const data = await res.json();
 
     window.AppState.paidResult = data;
+    if(window.saveReadingLocally) saveReadingLocally(data, window.AppState.birthData);
     renderPaidResult(data);
 
   } catch(e){

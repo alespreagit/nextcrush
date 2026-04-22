@@ -51,11 +51,13 @@ function showStep(id){
 }
 
 function resetForm(){
+  if(window.AppState.countdownInterval) clearInterval(window.AppState.countdownInterval);
   window.AppState={
     birthData:null,email:null,freeResult:null,
     paidResult:null,paymentIntentId:null,countdownInterval:null
   };
-  if(window.AppState.countdownInterval) clearInterval(window.AppState.countdownInterval);
+  clearReadingLocally();
+  dismissBanner();
   showStep('step-form');
 }
 
@@ -484,3 +486,69 @@ window.shareTwitter = shareTwitter;
 window.copyShareLink = copyShareLink;
 window.shareNative = shareNative;
 window.updateSharePreview = updateSharePreview;
+
+// ── PERSIST READING ──
+function saveReadingLocally(result, birthData){
+  try {
+    localStorage.setItem('nc_reading', JSON.stringify({
+      result,
+      birthData,
+      savedAt: new Date().toISOString()
+    }));
+  } catch(e){ console.error('localStorage save failed', e); }
+}
+
+function loadReadingLocally(){
+  try {
+    const raw = localStorage.getItem('nc_reading');
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    // Expire after 365 days
+    const savedAt = new Date(data.savedAt);
+    const daysSince = (new Date() - savedAt) / 86400000;
+    if(daysSince > 365) return null;
+    return data;
+  } catch(e){ return null; }
+}
+
+function clearReadingLocally(){
+  try { localStorage.removeItem('nc_reading'); } catch(e){}
+}
+
+// ── CHECK FOR SAVED READING ON PAGE LOAD ──
+window.addEventListener('load', function(){
+  const saved = loadReadingLocally();
+  if(saved && saved.result && saved.birthData){
+    // Show restore banner
+    showRestoreBanner(saved);
+  }
+});
+
+function showRestoreBanner(saved){
+  const banner = document.createElement('div');
+  banner.id = 'restore-banner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(26,15,46,0.97);border-bottom:1px solid rgba(201,168,76,0.3);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;z-index:999;';
+  banner.innerHTML = '<span style="font-family:Cinzel,serif;font-size:10px;letter-spacing:0.3em;color:#e8c97a;text-transform:uppercase">✦ Your reading is saved</span><div style="display:flex;gap:12px"><button onclick="restoreReading()" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:#e8c97a;padding:8px 16px;cursor:pointer">View Reading</button><button onclick="dismissBanner()" style="font-family:Cinzel,serif;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;background:none;border:none;color:#7a6e5f;cursor:pointer">Dismiss</button></div>';
+  document.body.appendChild(banner);
+}
+
+function restoreReading(){
+  const saved = loadReadingLocally();
+  if(!saved) return;
+  window.AppState.paidResult = saved.result;
+  window.AppState.birthData = saved.birthData;
+  dismissBanner();
+  showStep('step-paid');
+  renderPaidResult(saved.result);
+  if(saved.result.windows && saved.result.windows.length){
+    updateSharePreview();
+  }
+}
+
+function dismissBanner(){
+  const banner = document.getElementById('restore-banner');
+  if(banner) banner.remove();
+}
+
+window.restoreReading = restoreReading;
+window.dismissBanner = dismissBanner;
