@@ -26,8 +26,13 @@ async function createPaymentIntent(){
       birthData: window.AppState?.birthData || {}
     })
   });
-  if(!res.ok) throw new Error('Payment setup failed');
-  return await res.json();
+  const data = await res.json();
+  if(!res.ok){
+    console.error('Payment intent error:', data);
+    showToast('Error: ' + (data.message || data.error || 'Payment setup failed'));
+    throw new Error(data.message || 'Payment setup failed');
+  }
+  return data;
 }
 
 async function setupPaymentElement(){
