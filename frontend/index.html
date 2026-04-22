@@ -181,7 +181,7 @@
 <!-- NO REFUND CHECKBOX -->
 <div class="no-refund-box">
   <label class="checkbox-label">
-    <input type="checkbox" id="agree-checkbox" onchange="togglePayButton()"/>
+    <input type="checkbox" id="agree-checkbox" onchange="this.nextElementSibling.style.color=this.checked?'#88d4a0':'inherit'; var btn=document.getElementById('btn-pay'); if(btn){btn.disabled=!this.checked; btn.style.opacity=this.checked?'1':'0.5';}"/>
     <span>I understand that Next Crush is an astrological timing tool for entertainment and self-reflection purposes only. It is not a guarantee of romantic outcomes. I agree that due to the instant digital delivery of my personalised reading, <strong>all sales are final and non-refundable</strong>.</span>
   </label>
 </div>
