@@ -89,13 +89,16 @@ function startCalculation(){
   const dob=new Date(dobVal+'T12:00:00');
 
   // Store birth data globally
+  const cityData = window.Geocode ? window.Geocode.getCityData() : null;
   window.AppState.birthData={
     dob:dobVal, tob:tobVal, gender, seeking, city,
     year:dob.getFullYear(),
     month:dob.getMonth()+1,
     day:dob.getDate(),
     hour:tobVal?parseInt(tobVal.split(':')[0]):12,
-    minute:tobVal?parseInt(tobVal.split(':')[1]):0
+    minute:tobVal?parseInt(tobVal.split(':')[1]):0,
+    lat: cityData?.lat || parseFloat(document.getElementById('city-lat').value) || 40.7128,
+    lng: cityData?.lng || parseFloat(document.getElementById('city-lng').value) || -74.0060
   };
 
   // Calculate free fuzzy result

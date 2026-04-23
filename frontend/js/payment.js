@@ -148,7 +148,11 @@ async function loadPaidReading(paymentIntentId){
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         paymentIntentId,
-        birthData: window.AppState.birthData,
+        birthData: {
+          ...window.AppState.birthData,
+          lat: parseFloat(document.getElementById('city-lat').value) || window.AppState.birthData?.lat || 40.7128,
+          lng: parseFloat(document.getElementById('city-lng').value) || window.AppState.birthData?.lng || -74.0060
+        },
         email: window.AppState.email || '',
         giftCode: window.AppState.giftCode || null,
         product: window.selectedProduct || 'single'
@@ -163,11 +167,9 @@ async function loadPaidReading(paymentIntentId){
     renderPaidResult(data);
 
   } catch(e){
-    console.error(e);
+    console.error('loadPaidReading error:', e);
     document.getElementById('oracle-text').innerHTML =
-      `<p style="color:var(--text-dim);font-style:italic">
-        Your reading is being prepared. Check your email shortly.
-      </p>`;
+      `<p style="color:var(--text-dim);font-style:italic">Error: ${e.message}</p>`;
   }
 }
 
