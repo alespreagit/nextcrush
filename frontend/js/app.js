@@ -243,13 +243,12 @@ function renderWindows(windows){
     </p>`;
     return;
   }
-  // Show only best window per tier
-  const shown = [];
-  const tiersShown = new Set();
+  // Show one per tier, always show all 3 tiers
+  const tierMap = {};
   for(const w of windows){
-    if(!tiersShown.has(w.tier)){ shown.push(w); tiersShown.add(w.tier); }
-    if(shown.length >= 3) break;
+    if(!tierMap[w.tier]) tierMap[w.tier] = w;
   }
+  const shown = [tierMap[1], tierMap[2], tierMap[3]].filter(Boolean);
   el.innerHTML=shown.map((w,i)=>{
     const date=new Date(w.date);
     const dateStr=date.toLocaleString('en-US',{
@@ -361,6 +360,20 @@ function renderBazi(bazi, luckPillar){
     </div>`;
   });
   html+=`</div>`;
+
+  // English element explanations
+  if(pillars.length > 0){
+    html+=`<div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px">`;
+    pillars.forEach((p,i)=>{
+      if(!p.element) return;
+      html+=`<div style="padding:8px 10px;border:1px solid rgba(201,168,76,0.08);background:rgba(255,255,255,0.01)">
+        <div style="font-family:Cinzel,serif;font-size:7px;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:3px">${['Year','Month','Day','Hour'][i]||''}</div>
+        <div style="font-size:11px;color:var(--gold-light)">${p.yinyang||''} ${p.element||''}</div>
+        <div style="font-size:10px;color:var(--text-dim);font-style:italic;margin-top:2px">${ELEMENT_MEANING[p.element]||''}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
 
   if(bazi.dayMaster||luckPillar){
     html+=`<div style="margin-top:14px;font-size:12px;color:var(--text-dim);font-style:italic;line-height:1.7">`;
