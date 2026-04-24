@@ -148,7 +148,8 @@ function renderPaidResult(data){
 
   // Top window clock
   if(windows&&windows.length){
-    const top=windows[0];
+  const seekTier={'partner':1,'crush':2,'encounter':3}[(window.AppState&&window.AppState.birthData&&window.AppState.birthData.seeking)||'partner']||1;
+  const top=windows.find(function(w){return w.tier===seekTier;})||windows[0];
     const topDate=new Date(top.date);
 
     document.getElementById('paid-window-type').textContent=
@@ -342,10 +343,8 @@ function renderBazi(bazi, luckPillar){
 
   const pillars=bazi.pillars||[];
   const labels=['Year','Month','Day','Hour'];
-  const elColors={
-    Wood:'element-wood',Fire:'element-fire',
-    Earth:'element-earth',Metal:'element-metal',Water:'element-water'
-  };
+  const elColors={Wood:'element-wood',Fire:'element-fire',Earth:'element-earth',Metal:'element-metal',Water:'element-water'};
+  const ELEMENT_MEANING={Wood:'Growth, creativity, new beginnings',Fire:'Passion, visibility, expression',Earth:'Stability, nurturing, reliability',Metal:'Precision, strength, clarity',Water:'Wisdom, intuition, adaptability'};
 
   let html=`<div class="pillar-row">`;
   pillars.forEach((p,i)=>{
