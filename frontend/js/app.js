@@ -243,7 +243,14 @@ function renderWindows(windows){
     </p>`;
     return;
   }
-  el.innerHTML=windows.slice(0,5).map((w,i)=>{
+  // Show only best window per tier
+  const shown = [];
+  const tiersShown = new Set();
+  for(const w of windows){
+    if(!tiersShown.has(w.tier)){ shown.push(w); tiersShown.add(w.tier); }
+    if(shown.length >= 3) break;
+  }
+  el.innerHTML=shown.map((w,i)=>{
     const date=new Date(w.date);
     const dateStr=date.toLocaleString('en-US',{
       weekday:'long',year:'numeric',month:'long',

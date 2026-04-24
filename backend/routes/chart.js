@@ -1,33 +1,20 @@
 // ═══════════════════════════════════════════
-// CHART.JS — FreeAstroAPI calls
-// Real Swiss Ephemeris + Real Bazi
+// CHART.JS — Reading creation
+// Western: Swiss Ephemeris (local, no rate limits)
+// Bazi: FreeAstroAPI (solar terms accurate)
 // ═══════════════════════════════════════════
+
 const axios = require('axios');
 const oracle = require('./oracle');
 const payment = require('./payment');
+const ephemeris = require('./ephemeris');
 const { saveReading, createGiftCodes, createReferralCode, validateGiftCode, redeemGiftCode } = require('./db');
 const { sendGiftCodes, sendReadingSummary } = require('./email');
 
 const ASTRO_API = 'https://api.freeastroapi.com/api/v1';
 const ASTRO_KEY = process.env.FREEASTRO_API_KEY;
 
-async function getNatalChart(birthData){
-  const { year, month, day, hour, minute, lat, lng, city } = birthData;
-  const res = await axios.post(`${ASTRO_API}/natal/calculate`, {
-    name: 'User',
-    year, month, day,
-    hour: hour || 12,
-    minute: minute || 0,
-    lat: lat || 40.7128,
-    lng: lng || -74.0060,
-    city: city || 'New York',
-    tz_str: 'AUTO'
-  }, {
-    headers: { 'x-api-key': ASTRO_KEY, 'Content-Type': 'application/json' }
-  });
-  return res.data;
-}
-
+// Bazi only — FreeAstroAPI (proper solar terms)
 async function getBaziChart(birthData){
   const { year, month, day, hour, minute, lat, lng, city, gender } = birthData;
   const res = await axios.post(`${ASTRO_API}/chinese/bazi`, {
@@ -44,62 +31,24 @@ async function getBaziChart(birthData){
     include_interactions: true,
     include_professional: true
   }, {
-    headers: { 'x-api-key': ASTRO_KEY, 'Content-Type': 'application/json' }
-  });
-  return res.data;
-}
-
-async function getTransits(birthData, natalData){
-  const now = new Date();
-  const transitDate = now.toISOString().split('T')[0];
-  const res = await axios.post(`${ASTRO_API}/transits/calculate`, {
-    natal_name: 'User',
-    natal_year: birthData.year,
-    natal_month: birthData.month,
-    natal_day: birthData.day,
-    natal_time_known: !!(birthData.hour),
-    natal_hour: birthData.hour || 12,
-    natal_minute: birthData.minute || 0,
-    natal_lat: birthData.lat || 40.7128,
-    natal_lng: birthData.lng || -74.0060,
-    current_city: birthData.city || 'New York',
-    current_lat: birthData.lat || 40.7128,
-    current_lng: birthData.lng || -74.0060,
-    transit_date: transitDate,
-    tz_str: 'AUTO',
-    orb_settings: {
-      Conjunction: 8.0,
-      Trine: 6.0,
-      Sextile: 4.0,
-      Opposition: 6.0,
-      Square: 4.0
-    },
-    interpretation: false
-  }, {
     headers: { 'x-api-key': ASTRO_KEY, 'Content-Type': 'application/json' },
     timeout: 15000
   });
   return res.data;
 }
 
-function parsePlanets(natalData){
+// Parse planets from Swiss Ephemeris output
+function parsePlanets(natalChart){
   const planets = {};
-  const SYMBOLS = {
-    sun:'☉', moon:'☽', mercury:'☿', venus:'♀',
-    mars:'♂', jupiter:'♃', saturn:'♄', chiron:'⚷'
-  };
-  if(natalData.planets){
-    natalData.planets.forEach(p => {
-      const key = p.name?.toLowerCase();
-      if(key){
-        planets[key] = {
-          sign: p.sign,
-          degree: p.full_degree ? p.full_degree.toFixed(1)+'°' : '',
-          symbol: SYMBOLS[key] || '',
-          retrograde: p.is_retro || false
-        };
-      }
-    });
+  if(!natalChart || !natalChart.planets) return planets;
+  for(const [name, data] of Object.entries(natalChart.planets)){
+    planets[name] = {
+      sign: data.sign,
+      degree: data.degree,
+      symbol: data.symbol || '',
+      longitude: data.lon,
+      retrograde: false
+    };
   }
   return planets;
 }
@@ -144,93 +93,6 @@ function parseLuckPillar(baziData){
   return { stem: '', branch: '', element: '' };
 }
 
-function parseWindows(transitData, natalData, seeking){
-  const windows = [];
-  const TIER_MAP = {
-    jupiter: 1, venus: 2, mars: 2, sun: 3, moon: 3, saturn: 3
-  };
-  const LOVE_ASPECTS = ['conjunction','trine','sextile'];
-  const LOVE_NATAL = ['venus','sun','mars'];
-
-  // Handle both old and new API response formats
-  const aspects = transitData.aspects || transitData.transits || [];
-
-  aspects.forEach(t => {
-    // New format: { id, type, between: ["Sun (Transit)", "Venus"], orb, ... }
-    // Old format: { transit_planet, natal_planet, aspect, orb, days_to_exact }
-    let planet, natalPlanet, aspect, orb, daysToExact;
-
-    if(t.between){
-      // New FreeAstroAPI format
-      const transitP = t.between.find(b => b.includes('(Transit)') || b.includes('Transit'));
-      const natalP = t.between.find(b => !b.includes('Transit'));
-      planet = transitP ? transitP.replace(/\s*\(Transit\)/i,'').trim().toLowerCase() : '';
-      natalPlanet = natalP ? natalP.trim().toLowerCase() : '';
-      aspect = t.type?.toLowerCase() || '';
-      orb = t.orb || 2;
-      // Estimate days to exact from orb and planet speed
-      const speeds = { sun: 1, moon: 13, mercury: 1.5, venus: 1.2, mars: 0.5, jupiter: 0.08, saturn: 0.03 };
-      const speed = speeds[planet] || 1;
-      daysToExact = Math.round(orb / speed);
-    } else {
-      // Old format
-      planet = t.transit_planet?.toLowerCase();
-      natalPlanet = t.natal_planet?.toLowerCase();
-      aspect = t.aspect?.toLowerCase();
-      orb = t.orb || 2;
-      daysToExact = t.days_to_exact || 30;
-    }
-
-    if(!LOVE_NATAL.includes(natalPlanet)) return;
-    if(!LOVE_ASPECTS.includes(aspect)) return;
-
-    const tier = TIER_MAP[planet] || 3;
-    const date = new Date();
-    date.setDate(date.getDate() + Math.max(1, Math.round(daysToExact)));
-
-    const aspectNames = {
-      conjunction:'Conjunction', trine:'Trine',
-      sextile:'Sextile', square:'Square', opposition:'Opposition'
-    };
-
-    windows.push({
-      date: date.toISOString(),
-      tier,
-      label: `${capitalize(planet)} × ${capitalize(natalPlanet)}`,
-      aspect: aspectNames[aspect] || aspect,
-      orb: typeof orb === 'number' ? orb.toFixed(2) : orb,
-      reason: `Transiting ${capitalize(planet)} forms a ${aspectNames[aspect]||aspect} with your natal ${capitalize(natalPlanet)} — ${getTransitMeaning(planet, natalPlanet, aspect)}`,
-      intensity: Math.round(100 - (orb || 2) * 15),
-      daysToExact
-    });
-  });
-
-  windows.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-  return windows.map(w => {
-    let score = w.intensity;
-    if(seeking === 'partner' && w.tier === 1) score += 10;
-    if(seeking === 'crush' && w.tier === 2) score += 10;
-    if(seeking === 'encounter' && w.tier === 3) score += 10;
-    return { ...w, score };
-  }).sort((a,b) => b.score - a.score).slice(0,5);
-}
-
-function getTransitMeaning(planet, natal, aspect){
-  const meanings = {
-    'jupiter-venus': 'your magnetic energy expands dramatically — the great benefic opens your heart',
-    'jupiter-sun': 'vitality and confidence peak — you radiate warmth that draws people close',
-    'jupiter-mars': 'bold action and passion surge — you pursue and attract with equal force',
-    'venus-venus': 'your annual peak of personal magnetism — Venus returns home to you',
-    'venus-mars': 'desire and attraction pulse at their highest frequency',
-    'venus-sun': 'charm and beauty illuminate your presence — you are seen',
-    'mars-venus': 'passion ignites — chemistry and pursuit energy are electric',
-    'mars-sun': 'confidence and drive surge — others feel your presence strongly',
-    'sun-venus': 'the Sun illuminates your Venus — a brief bright window of radiance',
-  };
-  return meanings[`${planet}-${natal}`] || 'a favorable alignment for romantic connection';
-}
-
 function capitalize(s){
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
 }
@@ -251,50 +113,72 @@ async function createReading(body){
 
   console.log('Creating reading for:', email, 'product:', product);
 
-  const [natalData, baziData] = await Promise.all([
-    getNatalChart(birthData),
-    getBaziChart(birthData)
-  ]);
+  // ── Western chart via Swiss Ephemeris (local, no API, no rate limits) ──
+  const { year, month, day, hour, minute } = birthData;
+  const natalChart = ephemeris.calcNatalChart(
+    year, month, day, hour || 12, minute || 0
+  );
+  const planets = parsePlanets(natalChart);
+  console.log('Swiss Ephemeris natal chart done. Planets:', Object.keys(planets).join(', '));
 
-  let transitData = { aspects: [] };
+  // ── Bazi via FreeAstroAPI (solar terms) ──
+  let baziData = {};
   try {
-    transitData = await getTransits(birthData, natalData);
-  } catch(e) {
-    console.warn('Transits unavailable (rate limit?):', e.message);
+    baziData = await getBaziChart(birthData);
+    console.log('Bazi done');
+  } catch(e){
+    console.log('Bazi API failed:', e.message, '— continuing without Bazi');
   }
-  const planets = parsePlanets(natalData);
+
   const bazi = parseBazi(baziData);
   const luckPillar = parseLuckPillar(baziData);
-  const windows = parseWindows(transitData, natalData, birthData.seeking);
 
+  // ── Love windows via Swiss Ephemeris transit scanner ──
+  const nowJD = ephemeris.toJulianDay(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    new Date().getDate()
+  );
+  console.log('Scanning love transits...');
+  const windows = ephemeris.scanLoveTransits(natalChart, birthData.seeking, nowJD);
+  console.log('Windows found:', windows.length);
+
+  // ── Claude oracle reading ──
   const oracleText = await oracle.mainReading({
     planets, bazi, luckPillar, windows,
     seeking: birthData.seeking,
     city: birthData.city
   });
 
-  // Generate gift codes if pack purchase
+  // ── Gift codes if pack purchase ──
   let giftCodes = [];
   if(product === 'pack' && paymentIntentId){
     try {
-      giftCodes = await createGiftCodes({
-        email,
-        paymentIntentId,
-        count: 2
-      });
+      giftCodes = await createGiftCodes({ email, paymentIntentId, count: 2 });
+      if(email && giftCodes.length > 0){
+        sendGiftCodes({ email, giftCodes, windows }).catch(e =>
+          console.error('Gift code email failed:', e.message)
+        );
+      }
     } catch(e){
       console.error('Gift code generation failed:', e.message);
     }
   }
 
-  // Generate referral code for this user
+  // ── Referral code ──
   let refCode = null;
   if(email){
     try {
       refCode = await createReferralCode(email);
     } catch(e){
-      console.error('Referral code generation failed:', e.message);
+      console.error('Referral code failed:', e.message);
     }
+  }
+
+  // ── Send reading summary email ──
+  if(email){
+    sendReadingSummary({ email, windows, oracle: oracleText, planets })
+      .catch(e => console.error('Reading email failed:', e.message));
   }
 
   const result = {
@@ -323,4 +207,4 @@ async function createReading(body){
   return result;
 }
 
-module.exports = { createReading, getNatalChart, getBaziChart };
+module.exports = { createReading, getBaziChart };
