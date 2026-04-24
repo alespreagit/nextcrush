@@ -51,32 +51,33 @@ async function getBaziChart(birthData){
 
 async function getTransits(birthData, natalData){
   const now = new Date();
+  const transitDate = now.toISOString().split('T')[0];
   const res = await axios.post(`${ASTRO_API}/transits/calculate`, {
-    natal: {
-      year: birthData.year,
-      month: birthData.month,
-      day: birthData.day,
-      hour: birthData.hour || 12,
-      minute: birthData.minute || 0,
-      lat: birthData.lat || 40.7128,
-      lng: birthData.lng || -74.0060,
-      tz_str: 'AUTO'
+    natal_name: 'User',
+    natal_year: birthData.year,
+    natal_month: birthData.month,
+    natal_day: birthData.day,
+    natal_time_known: !!(birthData.hour),
+    natal_hour: birthData.hour || 12,
+    natal_minute: birthData.minute || 0,
+    natal_lat: birthData.lat || 40.7128,
+    natal_lng: birthData.lng || -74.0060,
+    current_city: birthData.city || 'New York',
+    current_lat: birthData.lat || 40.7128,
+    current_lng: birthData.lng || -74.0060,
+    transit_date: transitDate,
+    tz_str: 'AUTO',
+    orb_settings: {
+      Conjunction: 8.0,
+      Trine: 6.0,
+      Sextile: 4.0,
+      Opposition: 6.0,
+      Square: 4.0
     },
-    transit: {
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,
-      day: now.getDate(),
-      hour: now.getHours(),
-      minute: now.getMinutes(),
-      lat: birthData.lat || 40.7128,
-      lng: birthData.lng || -74.0060,
-      tz_str: 'AUTO'
-    },
-    orb: 3,
-    aspects: ['conjunction','sextile','trine','square','opposition'],
-    planets: ['jupiter','venus','mars','sun','moon','saturn']
+    interpretation: false
   }, {
-    headers: { 'x-api-key': ASTRO_KEY, 'Content-Type': 'application/json' }
+    headers: { 'x-api-key': ASTRO_KEY, 'Content-Type': 'application/json' },
+    timeout: 15000
   });
   return res.data;
 }
@@ -151,36 +152,58 @@ function parseWindows(transitData, natalData, seeking){
   const LOVE_ASPECTS = ['conjunction','trine','sextile'];
   const LOVE_NATAL = ['venus','sun','mars'];
 
-  if(transitData.transits){
-    transitData.transits.forEach(t => {
-      const planet = t.transit_planet?.toLowerCase();
-      const natalPlanet = t.natal_planet?.toLowerCase();
-      const aspect = t.aspect?.toLowerCase();
+  // Handle both old and new API response formats
+  const aspects = transitData.aspects || transitData.transits || [];
 
-      if(!LOVE_NATAL.includes(natalPlanet)) return;
-      if(!LOVE_ASPECTS.includes(aspect)) return;
+  aspects.forEach(t => {
+    // New format: { id, type, between: ["Sun (Transit)", "Venus"], orb, ... }
+    // Old format: { transit_planet, natal_planet, aspect, orb, days_to_exact }
+    let planet, natalPlanet, aspect, orb, daysToExact;
 
-      const tier = TIER_MAP[planet] || 3;
-      const date = new Date();
-      date.setDate(date.getDate() + Math.round(t.days_to_exact || 30));
+    if(t.between){
+      // New FreeAstroAPI format
+      const transitP = t.between.find(b => b.includes('(Transit)') || b.includes('Transit'));
+      const natalP = t.between.find(b => !b.includes('Transit'));
+      planet = transitP ? transitP.replace(/\s*\(Transit\)/i,'').trim().toLowerCase() : '';
+      natalPlanet = natalP ? natalP.trim().toLowerCase() : '';
+      aspect = t.type?.toLowerCase() || '';
+      orb = t.orb || 2;
+      // Estimate days to exact from orb and planet speed
+      const speeds = { sun: 1, moon: 13, mercury: 1.5, venus: 1.2, mars: 0.5, jupiter: 0.08, saturn: 0.03 };
+      const speed = speeds[planet] || 1;
+      daysToExact = Math.round(orb / speed);
+    } else {
+      // Old format
+      planet = t.transit_planet?.toLowerCase();
+      natalPlanet = t.natal_planet?.toLowerCase();
+      aspect = t.aspect?.toLowerCase();
+      orb = t.orb || 2;
+      daysToExact = t.days_to_exact || 30;
+    }
 
-      const aspectNames = {
-        conjunction:'Conjunction', trine:'Trine',
-        sextile:'Sextile', square:'Square', opposition:'Opposition'
-      };
+    if(!LOVE_NATAL.includes(natalPlanet)) return;
+    if(!LOVE_ASPECTS.includes(aspect)) return;
 
-      windows.push({
-        date: date.toISOString(),
-        tier,
-        label: `${capitalize(planet)} × ${capitalize(natalPlanet)}`,
-        aspect: aspectNames[aspect] || aspect,
-        orb: t.orb ? t.orb.toFixed(2) : '',
-        reason: `Transiting ${capitalize(planet)} forms a ${aspectNames[aspect]||aspect} with your natal ${capitalize(natalPlanet)} — ${getTransitMeaning(planet, natalPlanet, aspect)}`,
-        intensity: Math.round(100 - (t.orb || 2) * 15),
-        daysToExact: t.days_to_exact || 30
-      });
+    const tier = TIER_MAP[planet] || 3;
+    const date = new Date();
+    date.setDate(date.getDate() + Math.max(1, Math.round(daysToExact)));
+
+    const aspectNames = {
+      conjunction:'Conjunction', trine:'Trine',
+      sextile:'Sextile', square:'Square', opposition:'Opposition'
+    };
+
+    windows.push({
+      date: date.toISOString(),
+      tier,
+      label: `${capitalize(planet)} × ${capitalize(natalPlanet)}`,
+      aspect: aspectNames[aspect] || aspect,
+      orb: typeof orb === 'number' ? orb.toFixed(2) : orb,
+      reason: `Transiting ${capitalize(planet)} forms a ${aspectNames[aspect]||aspect} with your natal ${capitalize(natalPlanet)} — ${getTransitMeaning(planet, natalPlanet, aspect)}`,
+      intensity: Math.round(100 - (orb || 2) * 15),
+      daysToExact
     });
-  }
+  });
 
   windows.sort((a,b) => new Date(a.date) - new Date(b.date));
 
@@ -233,7 +256,12 @@ async function createReading(body){
     getBaziChart(birthData)
   ]);
 
-  const transitData = await getTransits(birthData, natalData);
+  let transitData = { aspects: [] };
+  try {
+    transitData = await getTransits(birthData, natalData);
+  } catch(e) {
+    console.warn('Transits unavailable (rate limit?):', e.message);
+  }
   const planets = parsePlanets(natalData);
   const bazi = parseBazi(baziData);
   const luckPillar = parseLuckPillar(baziData);

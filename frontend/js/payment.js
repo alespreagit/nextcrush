@@ -159,8 +159,11 @@ async function loadPaidReading(paymentIntentId){
       })
     });
 
-    if(!res.ok) throw new Error('Reading failed');
     const data = await res.json();
+    if(!res.ok){
+      console.error('Reading error:', data);
+      throw new Error(data.message || data.error || 'Reading failed');
+    }
 
     window.AppState.paidResult = data;
     if(window.saveReadingLocally) saveReadingLocally(data, window.AppState.birthData);
