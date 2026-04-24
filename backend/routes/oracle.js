@@ -32,7 +32,9 @@ async function mainReading({ planets, bazi, luckPillar, windows, seeking, city }
     encounter:'a meaningful romantic encounter'
   }[seeking] || 'love';
 
-  const prompt = `You are the oracle of Next Crush, a celestial love timing engine. Speak with poetic grace and mystical authority. You read love destiny through real planetary transits and Bazi Four Pillars.
+  const prompt = `You are the oracle of Next Crush. IMPORTANT: Respond in plain prose only. No markdown, no headers, no # symbols, no asterisks, no bullet points. Pure flowing paragraphs only.
+
+You are the oracle of Next Crush, a celestial love timing engine. Speak with poetic grace and mystical authority. You read love destiny through real planetary transits and Bazi Four Pillars.
 
 This person seeks ${seekLabel}.
 
@@ -74,7 +76,9 @@ async function windowReading({ window, birthData, planets, bazi }){
     3:'a sparkling romantic encounter'
   }[window?.tier] || 'romantic';
 
-  const prompt = `You are the oracle of Next Crush. Write exactly 2 sentences for this specific transit window.
+  const prompt = `You are the oracle of Next Crush. IMPORTANT: Respond in plain prose only. No markdown, no headers, no # symbols, no asterisks, no bullet points. Pure flowing paragraphs only.
+
+You are the oracle of Next Crush. Write exactly 2 sentences for this specific transit window.
 
 Sentence 1: What will this feel like in their body and daily life — be sensory and specific.
 Sentence 2: One concrete evocative thing they should do to align with this energy.
