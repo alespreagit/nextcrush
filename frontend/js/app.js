@@ -148,8 +148,11 @@ function renderPaidResult(data){
 
   // Top window clock
   if(windows&&windows.length){
-  const seekTier={'partner':1,'crush':2,'encounter':3}[(window.AppState&&window.AppState.birthData&&window.AppState.birthData.seeking)||'partner']||1;
+  const seekingVal=(window.AppState&&window.AppState.birthData&&window.AppState.birthData.seeking)||'partner';
+  console.log('Seeking value:', seekingVal, 'AppState:', JSON.stringify(window.AppState&&window.AppState.birthData));
+  const seekTier={'partner':1,'crush':2,'encounter':3}[seekingVal]||1;
   const top=windows.find(function(w){return w.tier===seekTier;})||windows[0];
+  console.log('Top window tier:', top&&top.tier, 'seeking tier:', seekTier);
     const topDate=new Date(top.date);
 
     document.getElementById('paid-window-type').textContent=
