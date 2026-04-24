@@ -190,6 +190,7 @@ async function createReading(body){
     giftCodes,
     refCode,
     product: product || 'single',
+    seeking: birthData.seeking || 'partner',
     createdAt: new Date().toISOString()
   };
 
